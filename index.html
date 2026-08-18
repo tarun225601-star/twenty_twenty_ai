@@ -1,15 +1,139 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flutter Android Project Auto-Pusher with Persistent Settings</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 15px; margin: 0; }
+        .container { max-width: 750px; margin: auto; }
+        .box { background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #334155; }
+        h2 { color: #38bdf8; text-align: center; }
+        h3 { color: #facc15; font-size: 16px; margin: 0 0 10px 0; }
+        label { display: block; margin-top: 10px; font-size: 13px; color: #94a3b8; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 5px; background: #0f172a; border: 1px solid #475569; color: #fff; box-sizing: border-box; border-radius: 4px; font-size: 14px; }
+        textarea { height: 120px; }
+        button { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 12px; font-size: 15px; }
+        button:hover { background: #0369a1; }
+        .save-btn { background: #f59e0b; margin-top: 10px; }
+        .save-btn:hover { background: #d97706; }
+        .edit-btn { background: #64748b; margin-top: 10px; display: none; }
+        .edit-btn:hover { background: #475569; }
+        .push-btn { background: #10b981; }
+        .push-btn:hover { background: #059669; }
+        .file-box { background: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 6px; margin-top: 15px; }
+        .path { color: #facc15; font-weight: bold; font-family: monospace; font-size: 13px; margin-bottom: 5px; }
+        pre { background: #020617; padding: 10px; overflow-x: auto; color: #34d399; font-size: 12px; border-radius: 4px; margin: 5px 0 0 0; white-space: pre-wrap; word-wrap: break-word; }
+        .copy-btn { background: #475569; padding: 6px 12px; font-size: 12px; width: auto; margin-top: 8px; border: none; color: white; border-radius: 4px; cursor: pointer; }
+        .status { margin-top: 10px; font-weight: bold; text-align: center; font-size: 14px; }
+    </style>
+</head>
+<body onload="loadSettings()">
+
+<div class="container">
+    <h2>Flutter Android Project Auto-Pusher</h2>
+
+    <div class="box">
+        <h3>⚙️ GitHub Settings (सेटिंग्स)</h3>
+        
+        <label>GitHub Username:</label>
+        <input type="text" id="ghUser" placeholder="उदा. tarun">
+
+        <label>Repository Name:</label>
+        <input type="text" id="ghRepo" placeholder="उदा. viziag-app">
+
+        <label>GitHub Personal Access Token (PAT):</label>
+        <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
+
+        <button id="saveBtn" class="save-btn" onclick="saveSettings()">💾 Save Settings (सेटिंग्स सेव करें)</button>
+        <button id="editBtn" class="edit-btn" onclick="editSettings()">✏️ Edit Settings (बदलाव करें)</button>
+    </div>
+
+    <div class="box">
+        <label>App Name (ऐप का नाम):</label>
+        <input type="text" id="appName" value="Viziag Mart">
+        
+        <label>Package Name (पैकेज नाम, जैसे com.viziag.app):</label>
+        <input type="text" id="pkgName" value="com.viziag.app">
+        
+        <label>index.html Code (यहाँ अपना पूरा HTML कोड पेस्ट करें):</label>
+        <textarea id="htmlCode">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Viziag&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;&lt;h1&gt;Hello Viziag Mart&lt;/h1&gt;&lt;/body&gt;
+&lt;/html&gt;</textarea>
+        
+        <button onclick="generateFiles()">1. Generate All Files & Code (सभी फाइलों का कोड देखें)</button>
+        <button class="push-btn" onclick="pushAllToGitHub()">2. Auto Push All to GitHub (सीधे गिटहब पर भेजें) 🚀</button>
+        <div id="statusMsg" class="status"></div>
+    </div>
+
+    <div id="result"></div>
+</div>
+
+<script>
+// Save settings to Browser LocalStorage
+function saveSettings() {
+    const user = document.getElementById('ghUser').value.trim();
+    const repo = document.getElementById('ghRepo').value.trim();
+    const token = document.getElementById('ghToken').value.trim();
+
+    if (!user || !repo || !token) {
+        alert("कृपया सभी सेटिंग्स (Username, Repo, Token) भरें!");
+        return;
+    }
+
+    localStorage.setItem('gh_user', user);
+    localStorage.setItem('gh_repo', repo);
+    localStorage.setItem('gh_token', token);
+
+    lockSettings(true);
+    alert("सेटिंग्स सफलतापूर्वक सेव हो गई हैं! अब यह डिलीट नहीं होंगी।");
+}
+
+// Load settings on page start
+function loadSettings() {
+    const user = localStorage.getItem('gh_user');
+    const repo = localStorage.getItem('gh_repo');
+    const token = localStorage.getItem('gh_token');
+
+    if (user && repo && token) {
+        document.getElementById('ghUser').value = user;
+        document.getElementById('ghRepo').value = repo;
+        document.getElementById('ghToken').value = token;
+        lockSettings(true);
+    }
+}
+
+// Lock inputs after saving
+function lockSettings(lock) {
+    document.getElementById('ghUser').disabled = lock;
+    document.getElementById('ghRepo').disabled = lock;
+    document.getElementById('ghToken').disabled = lock;
+
+    if (lock) {
+        document.getElementById('saveBtn').style.display = 'none';
+        document.getElementById('editBtn').style.display = 'block';
+    } else {
+        document.getElementById('saveBtn').style.display = 'block';
+        document.getElementById('editBtn').style.display = 'none';
+    }
+}
+
+// Unlock inputs for editing
+function editSettings() {
+    lockSettings(false);
+}
+
 function getProjectFiles() {
     const app = document.getElementById('appName').value || "ViziagApp";
     const pkg = document.getElementById('pkgName').value || "com.viziag.app";
     const html = document.getElementById('htmlCode').value || "<h1>Hello</h1>";
 
-    // 1. GitHub Actions Workflow for Flutter APK
+    // 1. GitHub Actions Workflow for Flutter APK Build
     const wf = `name: Build Flutter APK
 
-on:
-  push:
-    branches:
-      - main
+on: [push]
 
 jobs:
   build:
@@ -68,7 +192,7 @@ flutter:
     - assets/index.html`;
 
     // 3. lib/main.dart
-    const mainDart = `import 'package:flutter/material.dart';
+    const main = `import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 void main() {
@@ -128,7 +252,7 @@ class _WebViewPageState extends State<WebViewPage> {
 }`;
 
     // 4. Android Manifest
-    const androidManifest = `<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    const mani = `<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="${app}"
@@ -227,11 +351,93 @@ android.enableJetifier=true`;
     return [
         { path: ".github/workflows/build-apk.yml", content: wf },
         { path: "pubspec.yaml", content: pubspec },
-        { path: "lib/main.dart", content: mainDart },
+        { path: "lib/main.dart", content: main },
         { path: "assets/index.html", content: html },
-        { path: "android/app/src/main/AndroidManifest.xml", content: androidManifest },
+        { path: "android/app/src/main/AndroidManifest.xml", content: mani },
         { path: "android/app/build.gradle", content: appGradle },
         { path: "android/build.gradle", content: projectGradle },
         { path: "android/gradle.properties", content: gradleProps }
     ];
 }
+
+function generateFiles() {
+    const files = getProjectFiles();
+    let htmlOut = "";
+    files.forEach((f, index) => {
+        const uniqueId = 'code_' + index;
+        htmlOut += `
+            <div class="file-box">
+                <div class="path">📁 File Path: ${f.path}</div>
+                <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('${uniqueId}').innerText); alert('Code Copied!');">Copy Full Code</button>
+                <pre><code id="${uniqueId}">${escapeHtml(f.content)}</code></pre>
+            </div>
+        `;
+    });
+    document.getElementById('result').innerHTML = htmlOut;
+    document.getElementById('statusMsg').innerText = "सफलतापूर्वक सभी फाइलों का कोड तैयार है!";
+    document.getElementById('statusMsg').style.color = "#38bdf8";
+}
+
+async function pushAllToGitHub() {
+    const user = document.getElementById('ghUser').value.trim();
+    const repo = document.getElementById('ghRepo').value.trim();
+    const token = document.getElementById('ghToken').value.trim();
+    const status = document.getElementById('statusMsg');
+
+    if (!user || !repo || !token) {
+        alert("कृपया पहले सेटिंग्स सेव करें!");
+        return;
+    }
+
+    const files = getProjectFiles();
+    status.innerText = "गिटहब पर फाइलें भेजी जा रही हैं, कृपया प्रतीक्षा करें...";
+    status.style.color = "#facc15";
+
+    for (let f of files) {
+        try {
+            const url = `https://api.github.com/repos/${user}/${repo}/contents/${f.path}`;
+            let sha = "";
+            const getRes = await fetch(url, {
+                headers: { "Authorization": `token ${token}` }
+            });
+            if (getRes.ok) {
+                const data = await getRes.json();
+                sha = data.sha;
+            }
+
+            const bodyData = {
+                message: `Auto push ${f.path} via Web Tool`,
+                content: btoa(unescape(encodeURIComponent(f.content)))
+            };
+            if (sha) bodyData.sha = sha;
+
+            const putRes = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `token ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(bodyData)
+            });
+
+            if (!putRes.ok) {
+                throw new Error(`Failed to upload ${f.path}`);
+            }
+        } catch (err) {
+            status.innerText = "एरर आया: " + err.message;
+            status.style.color = "#ef4444";
+            return;
+        }
+    }
+
+    status.innerText = "सफलतापूर्वक सारी फाइलें गिटहब पर पुश हो गईं! 🚀 अब Actions टैब चेक करें।";
+    status.style.color = "#34d399";
+}
+
+function escapeHtml(t) {
+    return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+</script>
+
+</body>
+</html>
