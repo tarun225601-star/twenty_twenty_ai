@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML to Android Project Converter</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: #1e293b; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        h2 { color: #38bdf8; text-align: center; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 5px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 5px; box-sizing: border-box; }
+        button.gen-btn { background: #0284c7; color: white; border: none; padding: 12px 20px; margin-top: 20px; cursor: pointer; width: 100%; font-size: 16px; border-radius: 5px; font-weight: bold; }
+        button.gen-btn:hover { background: #0369a1; }
+        .file-card { margin-top: 25px; background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 8px; }
+        .path-section { margin-bottom: 15px; }
+        .path-box { display: flex; gap: 10px; align-items: center; margin-top: 5px; }
+        .path-input { background: #1e293b; color: #facc15; font-weight: bold; font-family: monospace; font-size: 14px; border: 1px solid #475569; padding: 8px; border-radius: 4px; flex-grow: 1; }
+        .code-section { margin-top: 10px; }
+        .code-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .code-title { color: #38bdf8; font-size: 15px; font-weight: bold; }
+        .copy-btn { background: #10b981; color: white; border: none; padding: 8px 14px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 13px; }
+        .copy-btn:hover { background: #059669; }
+        pre { background: #020617; padding: 12px; overflow-x: auto; border-radius: 4px; font-size: 13px; color: #34d399; margin: 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Android Project & Path Splitter Tool</h2>
+    
+    <label for="appName">App Name (ऐप का नाम):</label>
+    <input type="text" id="appName" value="Viziag Mart">
+
+    <label for="pkgName">Package Name (पैकेज नाम, जैसे com.viziag.app):</label>
+    <input type="text" id="pkgName" value="com.viziag.app">
+
+    <label for="htmlInput">Apna index.html Code Yahan Paste Karein:</label>
+    <textarea id="htmlInput" rows="6" placeholder="<!DOCTYPE html>..."></textarea>
+
+    <button class="gen-btn" onclick="generateProjectFiles()">Generate Separate Paths & Codes (फाइल और पाथ अलग करें)</button>
+
+    <div id="outputContainer"></div>
+</div>
+
+<script>
+function generateProjectFiles() {
+    const appName = document.getElementById('appName').value || "My App";
+    const pkgName = document.getElementById('pkgName').value || "com.example.app";
+    const htmlCode = document.getElementById('htmlInput').value || "<h1>Hello</h1>";
+
+    const pathPkg = pkgName.replace(/\./g, '/');
+
+    // 1. Workflow File (Signed Release Keystore Support)
+    const wfPath = ".github/workflows/build-apk.yml";
+    const wfCode = `name: Build Signed Release APK
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Build Signed Release APK with Gradle
+      env:
+        STORE_PASSWORD: \${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: \${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: \${{ secrets.KEY_PASSWORD }}
+      run: |
+        gradle wrapper
+        chmod +x gradlew
+        ./gradlew assembleRelease
+
+    - name: Upload Signed Release APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: signed-release-app
+        path: app/build/outputs/apk/release/app-release.apk`;
+
+    // 2. AndroidManifest.xml
+    const maniPath = "app/src/main/AndroidManifest.xml";
+    const maniCode = `<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="${pkgName}">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application
+        android:label="${appName}"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>`;
+
+    // 3. MainActivity.java
+    const mainPath = `app/src/main/java/${pathPkg}/MainActivity.java`;
+    const mainCode = `package ${pkgName};
+import android.os.Bundle;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        WebView webView = new WebView(this);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.setWebViewClient(new WebViewClient());
+        webView.loadUrl("file:///android_asset/index.html");
+        setContentView(webView);
+    }
+}`;
+
+    // 4. index.html
+    const htmlPath = "app/src/main/assets/index.html";
+    const htmlCodeContent = htmlCode;
+
+    // 5. settings.gradle
+    const setsPath = "settings.gradle";
+    const setsCode = `pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "${appName}"
+include ':app'`;
+
+    // 6. app/build.gradle
+    const appBuildPath = "app/build.gradle";
+    const appBuildCode = `plugins {
+    id 'com.android.application'
+}
+android {
+    namespace '${pkgName}'
+    compileSdk 34
+    defaultConfig {
+        applicationId "${pkgName}"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+}
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+}`;
+
+    // 7. root build.gradle
+    const rootBuildPath = "build.gradle";
+    const rootBuildCode = `// Top-level build file`;
+
+    // Render HTML Cards with separate Path and Code sections
+    const container = document.getElementById('outputContainer');
+    container.innerHTML = `
+        ${createFileSection("1. GitHub Workflow File", wfPath, wfCode)}
+        ${createFileSection("2. Android Manifest File", maniPath, maniCode)}
+        ${createFileSection("3. MainActivity File", mainPath, mainCode)}
+        ${createFileSection("4. HTML Asset File", htmlPath, htmlCodeContent)}
+        ${createFileSection("5. Settings Gradle File", setsPath, setsCode)}
+        ${createFileSection("6. App Build Gradle File", appBuildPath, appBuildCode)}
+        ${createFileSection("7. Root Build Gradle File", rootBuildPath, rootBuildCode)}
+    `;
+}
+
+function createFileSection(title, path, code) {
+    const pathId = 'path_' + Math.random().toString(36).substring(2, 9);
+    const codeId = 'code_' + Math.random().toString(36).substring(2, 9);
+    
+    return `
+        <div class="file-card">
+            <div class="code-title">📌 ${title}</div>
+            
+            <!-- Path Section -->
+            <div class="path-section">
+                <label style="font-size: 13px; color: #94a3b8;">📁 File Path (गिटहब में फाइल बनाते वक्त नाम की जगह यह डालें):</label>
+                <div class="path-box">
+                    <input type="text" class="path-input" id="${pathId}" value="${path}" readonly>
+                    <button class="copy-btn" onclick="copyElementText('${pathId}')">Copy Path</button>
+                </div>
+            </div>
+
+            <!-- Code Section -->
+            <div class="code-section">
+                <div class="code-header">
+                    <span style="font-size: 13px; color: #94a3b8;">💻 File Code (इस कोड को कॉपी करके पेस्ट करें):</span>
+                    <button class="copy-btn" onclick="copyElementCode('${codeId}')">Copy Code</button>
+                </div>
+                <pre><code id="${codeId}">${escapeHtml(code)}</code></pre>
+            </div>
+        </div>
+    `;
+}
+
+function copyElementText(elementId) {
+    const inputField = document.getElementById(elementId);
+    navigator.clipboard.writeText(inputField.value);
+    alert("Path Copied: " + inputField.value);
+}
+
+function copyElementCode(elementId) {
+    const codeBlock = document.getElementById(elementId);
+    navigator.clipboard.writeText(codeBlock.innerText);
+    alert("Code Copied successfully!");
+}
+
+function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+</script>
+
+</body>
+</html>
