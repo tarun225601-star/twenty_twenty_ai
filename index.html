@@ -9,7 +9,7 @@
         .container { max-width: 700px; margin: auto; }
         .box { background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #334155; }
         h2 { color: #38bdf8; text-align: center; }
-        h3 { color: #facc15; font-size: 16px; margin: 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        h3 { color: #facc15; font-size: 16px; margin: 0 0 10px 0; }
         label { display: block; margin-top: 10px; font-size: 13px; color: #94a3b8; }
         input, textarea { width: 100%; padding: 10px; margin-top: 5px; background: #0f172a; border: 1px solid #475569; color: #fff; box-sizing: border-box; border-radius: 4px; font-size: 14px; }
         textarea { height: 100px; }
@@ -21,7 +21,6 @@
         .path { color: #facc15; font-weight: bold; font-family: monospace; font-size: 13px; margin-bottom: 5px; }
         pre { background: #020617; padding: 10px; overflow-x: auto; color: #34d399; font-size: 12px; border-radius: 4px; margin: 5px 0 0 0; }
         .copy-btn { background: #475569; padding: 6px 12px; font-size: 12px; width: auto; margin-top: 5px; }
-        .hidden { display: none; }
         .status { margin-top: 10px; font-weight: bold; text-align: center; font-size: 14px; }
     </style>
 </head>
@@ -30,22 +29,18 @@
 <div class="container">
     <h2>Android Project Auto-Pusher</h2>
 
-    <!-- Settings Box -->
+    <!-- Settings Box (Always Open) -->
     <div class="box">
-        <h3 onclick="toggleSettings()">
-            <span>⚙️ GitHub Settings (गियर सेटिंग)</span>
-            <span>▼</span>
-        </h3>
-        <div id="settingsContent" class="hidden" style="margin-top: 10px;">
-            <label>GitHub Username:</label>
-            <input type="text" id="ghUser" placeholder="उदा. tarun">
+        <h3>⚙️ GitHub Settings (गियर सेटिंग)</h3>
+        
+        <label>GitHub Username:</label>
+        <input type="text" id="ghUser" placeholder="उदा. tarun">
 
-            <label>Repository Name:</label>
-            <input type="text" id="ghRepo" placeholder="उदा. viziag-app">
+        <label>Repository Name:</label>
+        <input type="text" id="ghRepo" placeholder="उदा. viziag-app">
 
-            <label>GitHub Personal Access Token (PAT):</label>
-            <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
-        </div>
+        <label>GitHub Personal Access Token (PAT):</label>
+        <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
     </div>
 
     <!-- Main Form Box -->
@@ -68,11 +63,6 @@
 </div>
 
 <script>
-function toggleSettings() {
-    const content = document.getElementById('settingsContent');
-    content.classList.toggle('hidden');
-}
-
 function getProjectFiles() {
     const app = document.getElementById('appName').value || "ViziagApp";
     const pkg = document.getElementById('pkgName').value || "com.viziag.app";
@@ -163,7 +153,8 @@ function generateFiles() {
         `;
     });
     document.getElementById('result').innerHTML = htmlOut;
-    document.getElementById('statusMsginnerText'] = "";
+    document.getElementById('statusMsg').innerText = "फाइलें तैयार हैं!";
+    document.getElementById('statusMsg').style.color = "#38bdf8";
 }
 
 async function pushAllToGitHub() {
@@ -173,7 +164,7 @@ async function pushAllToGitHub() {
     const status = document.getElementById('statusMsg');
 
     if (!user || !repo || !token) {
-        alert("कृपया पहले ऊपर गियर सेटिंग (⚙️) पर क्लिक करके Username, Repo Name और GitHub Token भरें!");
+        alert("कृपया ऊपर गियर सेटिंग में अपना Username, Repo Name और GitHub Token भरें!");
         return;
     }
 
