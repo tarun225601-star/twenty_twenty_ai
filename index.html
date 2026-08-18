@@ -3,35 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Auto-Pusher & Project Generator</title>
+    <title>Android Project Auto-Pusher with Persistent Settings</title>
     <style>
         body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 15px; margin: 0; }
-        .container { max-width: 700px; margin: auto; }
+        .container { max-width: 750px; margin: auto; }
         .box { background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #334155; }
         h2 { color: #38bdf8; text-align: center; }
         h3 { color: #facc15; font-size: 16px; margin: 0 0 10px 0; }
         label { display: block; margin-top: 10px; font-size: 13px; color: #94a3b8; }
         input, textarea { width: 100%; padding: 10px; margin-top: 5px; background: #0f172a; border: 1px solid #475569; color: #fff; box-sizing: border-box; border-radius: 4px; font-size: 14px; }
-        textarea { height: 100px; }
+        textarea { height: 120px; }
         button { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 12px; font-size: 15px; }
         button:hover { background: #0369a1; }
+        .save-btn { background: #f59e0b; margin-top: 10px; }
+        .save-btn:hover { background: #d97706; }
+        .edit-btn { background: #64748b; margin-top: 10px; display: none; }
+        .edit-btn:hover { background: #475569; }
         .push-btn { background: #10b981; }
         .push-btn:hover { background: #059669; }
         .file-box { background: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 6px; margin-top: 15px; }
         .path { color: #facc15; font-weight: bold; font-family: monospace; font-size: 13px; margin-bottom: 5px; }
-        pre { background: #020617; padding: 10px; overflow-x: auto; color: #34d399; font-size: 12px; border-radius: 4px; margin: 5px 0 0 0; }
-        .copy-btn { background: #475569; padding: 6px 12px; font-size: 12px; width: auto; margin-top: 5px; }
+        pre { background: #020617; padding: 10px; overflow-x: auto; color: #34d399; font-size: 12px; border-radius: 4px; margin: 5px 0 0 0; white-space: pre-wrap; word-wrap: break-word; }
+        .copy-btn { background: #475569; padding: 6px 12px; font-size: 12px; width: auto; margin-top: 8px; border: none; color: white; border-radius: 4px; cursor: pointer; }
         .status { margin-top: 10px; font-weight: bold; text-align: center; font-size: 14px; }
     </style>
 </head>
-<body>
+<body onload="loadSettings()">
 
 <div class="container">
     <h2>Android Project Auto-Pusher</h2>
 
-    <!-- Settings Box (Always Open) -->
+    <!-- Settings Box with Save/Edit -->
     <div class="box">
-        <h3>⚙️ GitHub Settings (गियर सेटिंग)</h3>
+        <h3>⚙️ GitHub Settings (सेटिंग्स)</h3>
         
         <label>GitHub Username:</label>
         <input type="text" id="ghUser" placeholder="उदा. tarun">
@@ -41,6 +45,9 @@
 
         <label>GitHub Personal Access Token (PAT):</label>
         <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
+
+        <button id="saveBtn" class="save-btn" onclick="saveSettings()">💾 Save Settings (सेटिंग्स सेव करें)</button>
+        <button id="editBtn" class="edit-btn" onclick="editSettings()">✏️ Edit Settings (बदलाव करें)</button>
     </div>
 
     <!-- Main Form Box -->
@@ -48,13 +55,17 @@
         <label>App Name (ऐप का नाम):</label>
         <input type="text" id="appName" value="Viziag Mart">
         
-        <label>Package Name (पैकेज नाम):</label>
+        <label>Package Name (पैकेज नाम, जैसे com.viziag.app):</label>
         <input type="text" id="pkgName" value="com.viziag.app">
         
-        <label>index.html Code:</label>
-        <textarea id="htmlCode">&lt;h1&gt;Hello Viziag&lt;/h1&gt;</textarea>
+        <label>index.html Code (यहाँ अपना पूरा HTML कोड पेस्ट करें):</label>
+        <textarea id="htmlCode">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Viziag&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;&lt;h1&gt;Hello Viziag Mart&lt;/h1&gt;&lt;/body&gt;
+&lt;/html&gt;</textarea>
         
-        <button onclick="generateFiles()">1. Generate Files & Code (फाइलें देखें)</button>
+        <button onclick="generateFiles()">1. Generate All Files & Code (सभी फाइलों का कोड देखें)</button>
         <button class="push-btn" onclick="pushAllToGitHub()">2. Auto Push All to GitHub (सीधे गिटहब पर भेजें) 🚀</button>
         <div id="statusMsg" class="status"></div>
     </div>
@@ -63,6 +74,59 @@
 </div>
 
 <script>
+// Save settings to Browser LocalStorage
+function saveSettings() {
+    const user = document.getElementById('ghUser').value.trim();
+    const repo = document.getElementById('ghRepo').value.trim();
+    const token = document.getElementById('ghToken').value.trim();
+
+    if (!user || !repo || !token) {
+        alert("कृपया सभी सेटिंग्स (Username, Repo, Token) भरें!");
+        return;
+    }
+
+    localStorage.setItem('gh_user', user);
+    localStorage.setItem('gh_repo', repo);
+    localStorage.setItem('gh_token', token);
+
+    lockSettings(true);
+    alert("सेटिंग्स सफलतापूर्वक सेव हो गई हैं! अब यह डिलीट नहीं होंगी।");
+}
+
+// Load settings on page start
+function loadSettings() {
+    const user = localStorage.getItem('gh_user');
+    const repo = localStorage.getItem('gh_repo');
+    const token = localStorage.getItem('gh_token');
+
+    if (user && repo && token) {
+        document.getElementById('ghUser').value = user;
+        document.getElementById('ghRepo').value = repo;
+        document.getElementById('ghToken').value = token;
+        lockSettings(true);
+    }
+}
+
+// Lock inputs after saving
+function lockSettings(lock) {
+    document.getElementById('ghUser').disabled = lock;
+    document.getElementById('ghRepo').disabled = lock;
+    document.getElementById('ghToken').disabled = lock;
+
+    if (lock) {
+        document.getElementById('saveBtn').style.display = 'none';
+        document.getElementById('editBtn').style.display = 'block';
+    } else {
+        document.getElementById('saveBtn').style.display = 'block';
+        document.getElementById('editBtn').style.display = 'none';
+    }
+}
+
+// Unlock inputs for editing
+function editSettings() {
+    lockSettings(false);
+}
+
 function getProjectFiles() {
     const app = document.getElementById('appName').value || "ViziagApp";
     const pkg = document.getElementById('pkgName').value || "com.viziag.app";
@@ -70,7 +134,9 @@ function getProjectFiles() {
     const pathPkg = pkg.replace(/\./g, '/');
 
     const wf = `name: Build Signed Release APK
+
 on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -89,45 +155,83 @@ jobs:
         name: signed-release-app
         path: app/build/outputs/apk/release/app-release.apk`;
 
-    const mani = `<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="${pkg}">
+    const mani = `<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="${pkg}">
+    
     <uses-permission android:name="android.permission.INTERNET" />
-    <application android:label="${app}" android:usesCleartextTraffic="true">
-        <activity android:name=".MainActivity" android:exported="true">
+    
+    <application
+        android:label="${app}"
+        android:usesCleartextTraffic="true">
+        
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
     </application>
 </manifest>`;
 
     const main = `package ${pkg};
+
 import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import androidx.appcompat.app.AppCompatActivity;
+
 public class MainActivity extends AppCompatActivity {
-    @Override protected void onCreate(Bundle b) {
-        super.onCreate(b);
-        WebView w = new WebView(this);
-        w.getSettings().setJavaScriptEnabled(true);
-        w.setWebViewClient(new WebViewClient());
-        w.loadUrl("file:///android_asset/index.html");
-        setContentView(w);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        WebView webView = new WebView(this);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.setWebViewClient(new WebViewClient());
+        webView.loadUrl("file:///android_asset/index.html");
+        setContentView(webView);
     }
 }`;
 
-    const sets = `pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
-dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
-rootProject.name = "${app}"; include ':app'`;
+    const sets = `pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "${app}"
+include ':app'`;
 
-    const gradle = `plugins { id 'com.android.application' }
+    const gradle = `plugins {
+    id 'com.android.application'
+}
+
 android {
     namespace '${pkg}'
     compileSdk 34
-    defaultConfig { applicationId "${pkg}"; minSdk 21; targetSdk 34; versionCode 1; versionName "1.0" }
+
+    defaultConfig {
+        applicationId "${pkg}"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
 }
-dependencies { implementation 'androidx.appcompat:appcompat:1.6.1' }`;
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+}`;
 
     return [
         { path: ".github/workflows/build-apk.yml", content: wf },
@@ -146,14 +250,14 @@ function generateFiles() {
         const uniqueId = 'code_' + index;
         htmlOut += `
             <div class="file-box">
-                <div class="path">📁 Path: ${f.path}</div>
-                <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('${uniqueId}').innerText); alert('Copied!');">Copy Code</button>
+                <div class="path">📁 File Path: ${f.path}</div>
+                <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('${uniqueId}').innerText); alert('Code Copied!');">Copy Full Code</button>
                 <pre><code id="${uniqueId}">${escapeHtml(f.content)}</code></pre>
             </div>
         `;
     });
     document.getElementById('result').innerHTML = htmlOut;
-    document.getElementById('statusMsg').innerText = "फाइलें तैयार हैं!";
+    document.getElementById('statusMsg').innerText = "सफलतापूर्वक सभी फाइलों का कोड तैयार है!";
     document.getElementById('statusMsg').style.color = "#38bdf8";
 }
 
@@ -164,12 +268,12 @@ async function pushAllToGitHub() {
     const status = document.getElementById('statusMsg');
 
     if (!user || !repo || !token) {
-        alert("कृपया ऊपर गियर सेटिंग में अपना Username, Repo Name और GitHub Token भरें!");
+        alert("कृपया पहले सेटिंग्स सेव करें!");
         return;
     }
 
     const files = getProjectFiles();
-    status.innerText = "गिटहब पर फाइलें भेजी जा रही हैं...";
+    status.innerText = "गिटहब पर फाइलें भेजी जा रही हैं, कृपया प्रतीक्षा करें...";
     status.style.color = "#facc15";
 
     for (let f of files) {
@@ -203,13 +307,13 @@ async function pushAllToGitHub() {
                 throw new Error(`Failed to upload ${f.path}`);
             }
         } catch (err) {
-            status.innerText = "एरर: " + err.message;
+            status.innerText = "एरर आया: " + err.message;
             status.style.color = "#ef4444";
             return;
         }
     }
 
-    status.innerText = "सफलतापूर्वक सारी फाइलें गिटहब पर पुश हो गईं! 🚀";
+    status.innerText = "सफलतापूर्वक सारी फाइलें गिटहब पर पुश हो गईं! 🚀 अब Actions टैब चेक करें।";
     status.style.color = "#34d399";
 }
 
