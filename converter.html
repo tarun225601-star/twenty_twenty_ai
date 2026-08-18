@@ -3,102 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML to Android Project Converter</title>
+    <title>GitHub Auto-Pusher & Android Project Generator</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: #1e293b; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        h2 { color: #38bdf8; text-align: center; }
-        label { display: block; margin-top: 15px; font-weight: bold; }
-        input, textarea { width: 100%; padding: 10px; margin-top: 5px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 5px; box-sizing: border-box; }
-        button.gen-btn { background: #0284c7; color: white; border: none; padding: 12px 20px; margin-top: 20px; cursor: pointer; width: 100%; font-size: 16px; border-radius: 5px; font-weight: bold; }
-        button.gen-btn:hover { background: #0369a1; }
-        .file-card { margin-top: 25px; background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 8px; }
-        .path-section { margin-bottom: 15px; }
-        .path-box { display: flex; gap: 10px; align-items: center; margin-top: 5px; }
-        .path-input { background: #1e293b; color: #facc15; font-weight: bold; font-family: monospace; font-size: 14px; border: 1px solid #475569; padding: 8px; border-radius: 4px; flex-grow: 1; }
-        .code-section { margin-top: 10px; }
-        .code-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .code-title { color: #38bdf8; font-size: 15px; font-weight: bold; }
-        .copy-btn { background: #10b981; color: white; border: none; padding: 8px 14px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 13px; }
-        .copy-btn:hover { background: #059669; }
-        pre { background: #020617; padding: 12px; overflow-x: auto; border-radius: 4px; font-size: 13px; color: #34d399; margin: 0; }
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 15px; margin: 0; }
+        .container { max-width: 600px; margin: auto; }
+        .box { background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #334155; }
+        h2 { color: #38bdf8; text-align: center; font-size: 20px; }
+        h3 { color: #facc15; font-size: 16px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; }
+        label { display: block; margin-top: 10px; font-size: 13px; color: #94a3b8; }
+        input, textarea { width: 100%; padding: 8px; margin-top: 4px; background: #0f172a; border: 1px solid #475569; color: #fff; box-sizing: border-box; border-radius: 4px; font-size: 14px; }
+        textarea { height: 100px; }
+        button { background: #0284c7; color: white; border: none; padding: 10px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 12px; font-size: 15px; }
+        button:hover { background: #0369a1; }
+        .push-btn { background: #10b981; }
+        .push-btn:hover { background: #059669; }
+        pre { background: #020617; padding: 10px; overflow-x: auto; color: #34d399; font-size: 11px; border-radius: 4px; margin: 5px 0 0 0; }
+        .path { color: #facc15; font-weight: bold; font-family: monospace; font-size: 12px; }
+        .settings-icon { cursor: pointer; font-size: 18px; }
+        .hidden { display: none; }
+        .status { margin-top: 10px; font-weight: bold; text-align: center; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Android Project & Path Splitter Tool</h2>
-    
-    <label for="appName">App Name (ऐप का नाम):</label>
-    <input type="text" id="appName" value="Viziag Mart">
+    <h2>GitHub Auto-Pusher Tool</h2>
 
-    <label for="pkgName">Package Name (पैकेज नाम, जैसे com.viziag.app):</label>
-    <input type="text" id="pkgName" value="com.viziag.app">
+    <!-- Settings Box (Gear Icon Section) -->
+    <div class="box">
+        <h3 onclick="toggleSettings()">
+            <span>⚙️ GitHub Settings (गियर सेटिंग)</span>
+            <span class="settings-icon">▼</span>
+        </h3>
+        <div id="settingsContent" class="hidden">
+            <label>GitHub Username:</label>
+            <input type="text" id="ghUser" placeholder="उदा. tarun">
 
-    <label for="htmlInput">Apna index.html Code Yahan Paste Karein:</label>
-    <textarea id="htmlInput" rows="6" placeholder="<!DOCTYPE html>..."></textarea>
+            <label>Repository Name:</label>
+            <input type="text" id="ghRepo" placeholder="उदा. viziag-app">
 
-    <button class="gen-btn" onclick="generateProjectFiles()">Generate Separate Paths & Codes (फाइल और पाथ अलग करें)</button>
+            <label>GitHub Personal Access Token (PAT):</label>
+            <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
+            <small style="color: #64748b; font-size: 11px;">(टोकन में 'repo' का परमिशन टिक होना चाहिए)</small>
+        </div>
+    </div>
 
-    <div id="outputContainer"></div>
+    <!-- App Details Box -->
+    <div class="box">
+        <label>App Name:</label>
+        <input type="text" id="appName" value="Viziag Mart">
+        
+        <label>Package Name:</label>
+        <input type="text" id="pkgName" value="com.viziag.app">
+        
+        <label>index.html Code:</label>
+        <textarea id="htmlCode">&lt;h1&gt;Hello Viziag Mart&lt;/h1&gt;</textarea>
+        
+        <button onclick="generateFiles()">1. Generate Files & Paths (फाइलें देखें)</button>
+        <button class="push-btn" onclick="pushAllToGitHub()">2. Auto Push All to GitHub (सीधे गिटहब पर भेजें) 🚀</button>
+        <div id="statusMsg" class="status"></div>
+    </div>
+
+    <div id="result"></div>
 </div>
 
 <script>
-function generateProjectFiles() {
-    const appName = document.getElementById('appName').value || "My App";
-    const pkgName = document.getElementById('pkgName').value || "com.example.app";
-    const htmlCode = document.getElementById('htmlInput').value || "<h1>Hello</h1>";
+function toggleSettings() {
+    const content = document.getElementById('settingsContent');
+    content.classList.toggle('hidden');
+}
 
-    const pathPkg = pkgName.replace(/\./g, '/');
+function getProjectFiles() {
+    const app = document.getElementById('appName').value || "ViziagApp";
+    const pkg = document.getElementById('pkgName').value || "com.viziag.app";
+    const html = document.getElementById('htmlCode').value || "<h1>Hello</h1>";
+    const pathPkg = pkg.replace(/\./g, '/');
 
-    // 1. Workflow File (Signed Release Keystore Support)
-    const wfPath = ".github/workflows/build-apk.yml";
-    const wfCode = `name: Build Signed Release APK
-
-on:
-  push:
-    branches: [ main ]
-
+    const wf = `name: Build Signed Release APK
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
+    - uses: actions/checkout@v4
+    - uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
-
-    - name: Build Signed Release APK with Gradle
-      env:
-        STORE_PASSWORD: \${{ secrets.KEYSTORE_PASSWORD }}
-        KEY_ALIAS: \${{ secrets.KEY_ALIAS }}
-        KEY_PASSWORD: \${{ secrets.KEY_PASSWORD }}
-      run: |
+    - run: |
         gradle wrapper
         chmod +x gradlew
         ./gradlew assembleRelease
-
-    - name: Upload Signed Release APK
-      uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v4
       with:
         name: signed-release-app
         path: app/build/outputs/apk/release/app-release.apk`;
 
-    // 2. AndroidManifest.xml
-    const maniPath = "app/src/main/AndroidManifest.xml";
-    const maniCode = `<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="${pkgName}">
+    const mani = `<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="${pkg}">
     <uses-permission android:name="android.permission.INTERNET" />
-    <application
-        android:label="${appName}"
-        android:usesCleartextTraffic="true">
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+    <application android:label="${app}" android:usesCleartextTraffic="true">
+        <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -107,129 +111,122 @@ jobs:
     </application>
 </manifest>`;
 
-    // 3. MainActivity.java
-    const mainPath = `app/src/main/java/${pathPkg}/MainActivity.java`;
-    const mainCode = `package ${pkgName};
+    const main = `package ${pkg};
 import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import androidx.appcompat.app.AppCompatActivity;
-
 public class MainActivity extends AppCompatActivity {
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        WebView webView = new WebView(this);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.setWebViewClient(new WebViewClient());
-        webView.loadUrl("file:///android_asset/index.html");
-        setContentView(webView);
+    @Override protected void onCreate(Bundle b) {
+        super.onCreate(b);
+        WebView w = new WebView(this);
+        w.getSettings().setJavaScriptEnabled(true);
+        w.setWebViewClient(new WebViewClient());
+        w.loadUrl("file:///android_asset/index.html");
+        setContentView(w);
     }
 }`;
 
-    // 4. index.html
-    const htmlPath = "app/src/main/assets/index.html";
-    const htmlCodeContent = htmlCode;
+    const sets = `pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
+rootProject.name = "${app}"; include ':app'`;
 
-    // 5. settings.gradle
-    const setsPath = "settings.gradle";
-    const setsCode = `pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-rootProject.name = "${appName}"
-include ':app'`;
-
-    // 6. app/build.gradle
-    const appBuildPath = "app/build.gradle";
-    const appBuildCode = `plugins {
-    id 'com.android.application'
-}
+    const gradle = `plugins { id 'com.android.application' }
 android {
-    namespace '${pkgName}'
+    namespace '${pkg}'
     compileSdk 34
-    defaultConfig {
-        applicationId "${pkgName}"
-        minSdk 21
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
+    defaultConfig { applicationId "${pkg}"; minSdk 21; targetSdk 34; versionCode 1; versionName "1.0" }
+}
+dependencies { implementation 'androidx.appcompat:appcompat:1.6.1' }`;
+
+    return [
+        { path: ".github/workflows/build-apk.yml", content: wf },
+        { path: "app/src/main/AndroidManifest.xml", content: mani },
+        { path: `app/src/main/java/${pathPkg}/MainActivity.java`, content: main },
+        { path: "app/src/main/assets/index.html", content: html },
+        { path: "settings.gradle", content: sets },
+        { path: "app/build.gradle", content: gradle }
+    ];
+}
+
+function generateFiles() {
+    const files = getProjectFiles();
+    let htmlOut = "";
+    files.forEach(f => {
+        htmlOut += `
+            <div class="box">
+                <div class="path">Path: ${f.path}</div>
+                <button style="padding:4px; font-size:12px; margin-top:5px;" onclick="navigator.clipboard.writeText(\`${f.content.replace(/`/g, '\\`')}\`)\">Copy Code</button>
+                <pre>${escapeHtml(f.content)}</pre>
+            </div>
+        `;
+    });
+    document.getElementById('result').innerHTML = htmlOut;
+    document.getElementById('statusMsg').innerText = "फाइलें तैयार हैं! नीचे कोड देख सकते हैं।";
+    document.getElementById('statusMsg').style.color = "#38bdf8";
+}
+
+async function pushAllToGitHub() {
+    const user = document.getElementById('ghUser').value.trim();
+    const repo = document.getElementById('ghRepo').value.trim();
+    const token = document.getElementById('ghToken').value.trim();
+    const status = document.getElementById('statusMsg');
+
+    if (!user || !repo || !token) {
+        alert("कृपया पहले ऊपर सेटिंग (⚙️) में जाकर Username, Repo Name और GitHub Token भरें!");
+        return;
     }
-}
-dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-}`;
 
-    // 7. root build.gradle
-    const rootBuildPath = "build.gradle";
-    const rootBuildCode = `// Top-level build file`;
+    const files = getProjectFiles();
+    status.innerText = "गिटहब पर फाइलें भेजी जा रही हैं, कृपया प्रतीक्षा करें...";
+    status.style.color = "#facc15";
 
-    // Render HTML Cards with separate Path and Code sections
-    const container = document.getElementById('outputContainer');
-    container.innerHTML = `
-        ${createFileSection("1. GitHub Workflow File", wfPath, wfCode)}
-        ${createFileSection("2. Android Manifest File", maniPath, maniCode)}
-        ${createFileSection("3. MainActivity File", mainPath, mainCode)}
-        ${createFileSection("4. HTML Asset File", htmlPath, htmlCodeContent)}
-        ${createFileSection("5. Settings Gradle File", setsPath, setsCode)}
-        ${createFileSection("6. App Build Gradle File", appBuildPath, appBuildCode)}
-        ${createFileSection("7. Root Build Gradle File", rootBuildPath, rootBuildCode)}
-    `;
-}
-
-function createFileSection(title, path, code) {
-    const pathId = 'path_' + Math.random().toString(36).substring(2, 9);
-    const codeId = 'code_' + Math.random().toString(36).substring(2, 9);
-    
-    return `
-        <div class="file-card">
-            <div class="code-title">📌 ${title}</div>
+    for (let f of files) {
+        try {
+            const url = `https://api.github.com/repos/${user}/${repo}/contents/${f.path}`;
             
-            <!-- Path Section -->
-            <div class="path-section">
-                <label style="font-size: 13px; color: #94a3b8;">📁 File Path (गिटहब में फाइल बनाते वक्त नाम की जगह यह डालें):</label>
-                <div class="path-box">
-                    <input type="text" class="path-input" id="${pathId}" value="${path}" readonly>
-                    <button class="copy-btn" onclick="copyElementText('${pathId}')">Copy Path</button>
-                </div>
-            </div>
+            // चेक करें कि फाइल पहले से है या नहीं (SHA निकालने के लिए)
+            let sha = "";
+            const getRes = await fetch(url, {
+                headers: { "Authorization": `token ${token}` }
+            });
+            if (getRes.ok) {
+                const data = await getRes.json();
+                sha = data.sha;
+            }
 
-            <!-- Code Section -->
-            <div class="code-section">
-                <div class="code-header">
-                    <span style="font-size: 13px; color: #94a3b8;">💻 File Code (इस कोड को कॉपी करके पेस्ट करें):</span>
-                    <button class="copy-btn" onclick="copyElementCode('${codeId}')">Copy Code</button>
-                </div>
-                <pre><code id="${codeId}">${escapeHtml(code)}</code></pre>
-            </div>
-        </div>
-    `;
+            // फाइल क्रिएट या अपडेट करने की रिक्वेस्ट
+            const bodyData = {
+                message: `Auto push ${f.path} via Web Tool`,
+                content: btoa(unescape(encodeURIComponent(f.content)))
+            };
+            if (sha) bodyData.sha = sha;
+
+            const putRes = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `token ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(bodyData)
+            });
+
+            if (!putRes.ok) {
+                throw new Error(`Failed to upload ${f.path}`);
+            }
+        } catch (err) {
+            status.innerText = "एरर आया: " + err.message;
+            status.style.color = "#ef4444";
+            return;
+        }
+    }
+
+    status.innerText = "सफलतापूर्वक सभी फाइलें गिटहब पर पुश हो गईं! 🚀 अब Actions टैब चेक करें।";
+    status.style.color = "#34d399";
 }
 
-function copyElementText(elementId) {
-    const inputField = document.getElementById(elementId);
-    navigator.clipboard.writeText(inputField.value);
-    alert("Path Copied: " + inputField.value);
-}
-
-function copyElementCode(elementId) {
-    const codeBlock = document.getElementById(elementId);
-    navigator.clipboard.writeText(codeBlock.innerText);
-    alert("Code Copied successfully!");
-}
-
-function escapeHtml(text) {
-    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function escapeHtml(t) {
+    return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 </script>
 
