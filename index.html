@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Auto-Pusher & Android Project Generator</title>
+    <title>GitHub Auto-Pusher & Project Generator</title>
     <style>
         body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 15px; margin: 0; }
-        .container { max-width: 600px; margin: auto; }
+        .container { max-width: 700px; margin: auto; }
         .box { background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #334155; }
-        h2 { color: #38bdf8; text-align: center; font-size: 20px; }
-        h3 { color: #facc15; font-size: 16px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; }
+        h2 { color: #38bdf8; text-align: center; }
+        h3 { color: #facc15; font-size: 16px; margin: 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         label { display: block; margin-top: 10px; font-size: 13px; color: #94a3b8; }
-        input, textarea { width: 100%; padding: 8px; margin-top: 4px; background: #0f172a; border: 1px solid #475569; color: #fff; box-sizing: border-box; border-radius: 4px; font-size: 14px; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 5px; background: #0f172a; border: 1px solid #475569; color: #fff; box-sizing: border-box; border-radius: 4px; font-size: 14px; }
         textarea { height: 100px; }
-        button { background: #0284c7; color: white; border: none; padding: 10px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 12px; font-size: 15px; }
+        button { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 12px; font-size: 15px; }
         button:hover { background: #0369a1; }
         .push-btn { background: #10b981; }
         .push-btn:hover { background: #059669; }
-        pre { background: #020617; padding: 10px; overflow-x: auto; color: #34d399; font-size: 11px; border-radius: 4px; margin: 5px 0 0 0; }
-        .path { color: #facc15; font-weight: bold; font-family: monospace; font-size: 12px; }
-        .settings-icon { cursor: pointer; font-size: 18px; }
+        .file-box { background: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 6px; margin-top: 15px; }
+        .path { color: #facc15; font-weight: bold; font-family: monospace; font-size: 13px; margin-bottom: 5px; }
+        pre { background: #020617; padding: 10px; overflow-x: auto; color: #34d399; font-size: 12px; border-radius: 4px; margin: 5px 0 0 0; }
+        .copy-btn { background: #475569; padding: 6px 12px; font-size: 12px; width: auto; margin-top: 5px; }
         .hidden { display: none; }
         .status { margin-top: 10px; font-weight: bold; text-align: center; font-size: 14px; }
     </style>
@@ -27,15 +28,15 @@
 <body>
 
 <div class="container">
-    <h2>GitHub Auto-Pusher Tool</h2>
+    <h2>Android Project Auto-Pusher</h2>
 
-    <!-- Settings Box (Gear Icon Section) -->
+    <!-- Settings Box -->
     <div class="box">
         <h3 onclick="toggleSettings()">
             <span>⚙️ GitHub Settings (गियर सेटिंग)</span>
-            <span class="settings-icon">▼</span>
+            <span>▼</span>
         </h3>
-        <div id="settingsContent" class="hidden">
+        <div id="settingsContent" class="hidden" style="margin-top: 10px;">
             <label>GitHub Username:</label>
             <input type="text" id="ghUser" placeholder="उदा. tarun">
 
@@ -44,22 +45,21 @@
 
             <label>GitHub Personal Access Token (PAT):</label>
             <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
-            <small style="color: #64748b; font-size: 11px;">(टोकन में 'repo' का परमिशन टिक होना चाहिए)</small>
         </div>
     </div>
 
-    <!-- App Details Box -->
+    <!-- Main Form Box -->
     <div class="box">
-        <label>App Name:</label>
+        <label>App Name (ऐप का नाम):</label>
         <input type="text" id="appName" value="Viziag Mart">
         
-        <label>Package Name:</label>
+        <label>Package Name (पैकेज नाम):</label>
         <input type="text" id="pkgName" value="com.viziag.app">
         
         <label>index.html Code:</label>
-        <textarea id="htmlCode">&lt;h1&gt;Hello Viziag Mart&lt;/h1&gt;</textarea>
+        <textarea id="htmlCode">&lt;h1&gt;Hello Viziag&lt;/h1&gt;</textarea>
         
-        <button onclick="generateFiles()">1. Generate Files & Paths (फाइलें देखें)</button>
+        <button onclick="generateFiles()">1. Generate Files & Code (फाइलें देखें)</button>
         <button class="push-btn" onclick="pushAllToGitHub()">2. Auto Push All to GitHub (सीधे गिटहब पर भेजें) 🚀</button>
         <div id="statusMsg" class="status"></div>
     </div>
@@ -152,18 +152,18 @@ dependencies { implementation 'androidx.appcompat:appcompat:1.6.1' }`;
 function generateFiles() {
     const files = getProjectFiles();
     let htmlOut = "";
-    files.forEach(f => {
+    files.forEach((f, index) => {
+        const uniqueId = 'code_' + index;
         htmlOut += `
-            <div class="box">
-                <div class="path">Path: ${f.path}</div>
-                <button style="padding:4px; font-size:12px; margin-top:5px;" onclick="navigator.clipboard.writeText(\`${f.content.replace(/`/g, '\\`')}\`)\">Copy Code</button>
-                <pre>${escapeHtml(f.content)}</pre>
+            <div class="file-box">
+                <div class="path">📁 Path: ${f.path}</div>
+                <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('${uniqueId}').innerText); alert('Copied!');">Copy Code</button>
+                <pre><code id="${uniqueId}">${escapeHtml(f.content)}</code></pre>
             </div>
         `;
     });
     document.getElementById('result').innerHTML = htmlOut;
-    document.getElementById('statusMsg').innerText = "फाइलें तैयार हैं! नीचे कोड देख सकते हैं।";
-    document.getElementById('statusMsg').style.color = "#38bdf8";
+    document.getElementById('statusMsginnerText'] = "";
 }
 
 async function pushAllToGitHub() {
@@ -173,19 +173,17 @@ async function pushAllToGitHub() {
     const status = document.getElementById('statusMsg');
 
     if (!user || !repo || !token) {
-        alert("कृपया पहले ऊपर सेटिंग (⚙️) में जाकर Username, Repo Name और GitHub Token भरें!");
+        alert("कृपया पहले ऊपर गियर सेटिंग (⚙️) पर क्लिक करके Username, Repo Name और GitHub Token भरें!");
         return;
     }
 
     const files = getProjectFiles();
-    status.innerText = "गिटहब पर फाइलें भेजी जा रही हैं, कृपया प्रतीक्षा करें...";
+    status.innerText = "गिटहब पर फाइलें भेजी जा रही हैं...";
     status.style.color = "#facc15";
 
     for (let f of files) {
         try {
             const url = `https://api.github.com/repos/${user}/${repo}/contents/${f.path}`;
-            
-            // चेक करें कि फाइल पहले से है या नहीं (SHA निकालने के लिए)
             let sha = "";
             const getRes = await fetch(url, {
                 headers: { "Authorization": `token ${token}` }
@@ -195,7 +193,6 @@ async function pushAllToGitHub() {
                 sha = data.sha;
             }
 
-            // फाइल क्रिएट या अपडेट करने की रिक्वेस्ट
             const bodyData = {
                 message: `Auto push ${f.path} via Web Tool`,
                 content: btoa(unescape(encodeURIComponent(f.content)))
@@ -215,13 +212,13 @@ async function pushAllToGitHub() {
                 throw new Error(`Failed to upload ${f.path}`);
             }
         } catch (err) {
-            status.innerText = "एरर आया: " + err.message;
+            status.innerText = "एरर: " + err.message;
             status.style.color = "#ef4444";
             return;
         }
     }
 
-    status.innerText = "सफलतापूर्वक सभी फाइलें गिटहब पर पुश हो गईं! 🚀 अब Actions टैब चेक करें।";
+    status.innerText = "सफलतापूर्वक सारी फाइलें गिटहब पर पुश हो गईं! 🚀";
     status.style.color = "#34d399";
 }
 
