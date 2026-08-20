@@ -1,443 +1,199 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flutter Android Project Auto-Pusher with Persistent Settings</title>
+    <title>Cinematic Image to Video Effect Player</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 15px; margin: 0; }
-        .container { max-width: 750px; margin: auto; }
-        .box { background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #334155; }
-        h2 { color: #38bdf8; text-align: center; }
-        h3 { color: #facc15; font-size: 16px; margin: 0 0 10px 0; }
-        label { display: block; margin-top: 10px; font-size: 13px; color: #94a3b8; }
-        input, textarea { width: 100%; padding: 10px; margin-top: 5px; background: #0f172a; border: 1px solid #475569; color: #fff; box-sizing: border-box; border-radius: 4px; font-size: 14px; }
-        textarea { height: 120px; }
-        button { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 12px; font-size: 15px; }
-        button:hover { background: #0369a1; }
-        .save-btn { background: #f59e0b; margin-top: 10px; }
-        .save-btn:hover { background: #d97706; }
-        .edit-btn { background: #64748b; margin-top: 10px; display: none; }
-        .edit-btn:hover { background: #475569; }
-        .push-btn { background: #10b981; }
-        .push-btn:hover { background: #059669; }
-        .file-box { background: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 6px; margin-top: 15px; }
-        .path { color: #facc15; font-weight: bold; font-family: monospace; font-size: 13px; margin-bottom: 5px; }
-        pre { background: #020617; padding: 10px; overflow-x: auto; color: #34d399; font-size: 12px; border-radius: 4px; margin: 5px 0 0 0; white-space: pre-wrap; word-wrap: break-word; }
-        .copy-btn { background: #475569; padding: 6px 12px; font-size: 12px; width: auto; margin-top: 8px; border: none; color: white; border-radius: 4px; cursor: pointer; }
-        .status { margin-top: 10px; font-weight: bold; text-align: center; font-size: 14px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0f1115;
+            color: #fff;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            letter-spacing: 0.5px;
+        }
+
+        /* कण्ट्रोल बॉक्स (इमेज अपलोड और बटन) */
+        .control-box {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 700px;
+            margin-bottom: 20px;
+            background: #1a1d24;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        input[type="file"] {
+            flex: 1;
+            color: #bbb;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #6366f1;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        /* वीडियो जैसा फ्रेम (मूवी प्लेयर) */
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #1a1d24;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        /* सिनेमैटिक ज़ूम इफ़ेक्ट (Ken Burns) */
+        .cinematic-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .active-zoom {
+            display: block;
+            animation: zoomEffect 12s infinite alternate ease-in-out;
+        }
+
+        @keyframes zoomEffect {
+            0% {
+                transform: scale(1) translate(0, 0);
+            }
+            100% {
+                transform: scale(1.18) translate(-15px, -10px);
+            }
+        }
+
+        /* बहते हुए पानी का इफ़ेक्ट (Overlay) */
+        .water-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(0, 140, 255, 0.15) 100%);
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            display: none;
+            animation: waterFlow 3s infinite linear;
+        }
+
+        @keyframes waterFlow {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 40px; }
+        }
+
+        .placeholder-text {
+            color: #475569;
+            font-size: 15px;
+        }
+
+        /* सेव करने का बटन */
+        .download-btn {
+            display: none;
+            background: #10b981;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .download-btn:hover {
+            background: #059669;
+        }
     </style>
 </head>
-<body onload="loadSettings()">
+<body>
 
-<div class="container">
-    <h2>Flutter Android Project Auto-Pusher</h2>
+    <h2>Cinematic Image-to-Video Player</h2>
 
-    <div class="box">
-        <h3>⚙️ GitHub Settings (सेटिंग्स)</h3>
-        
-        <label>GitHub Username:</label>
-        <input type="text" id="ghUser" placeholder="उदा. tarun">
-
-        <label>Repository Name:</label>
-        <input type="text" id="ghRepo" placeholder="उदा. viziag-app">
-
-        <label>GitHub Personal Access Token (PAT):</label>
-        <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
-
-        <button id="saveBtn" class="save-btn" onclick="saveSettings()">💾 Save Settings (सेटिंग्स सेव करें)</button>
-        <button id="editBtn" class="edit-btn" onclick="editSettings()">✏️ Edit Settings (बदलाव करें)</button>
+    <!-- इमेज अपलोड और प्ले बटन -->
+    <div class="control-box">
+        <input type="file" id="imageInput" accept="image/*">
+        <button onclick="playCinematicEffect()">चलाओ (Play Effect)</button>
     </div>
 
-    <div class="box">
-        <label>App Name (ऐप का नाम):</label>
-        <input type="text" id="appName" value="Viziag Mart">
-        
-        <label>Package Name (पैकेज नाम, जैसे com.viziag.app):</label>
-        <input type="text" id="pkgName" value="com.viziag.app">
-        
-        <label>index.html Code (यहाँ अपना पूरा HTML कोड पेस्ट करें):</label>
-        <textarea id="htmlCode">&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;&lt;title&gt;Viziag&lt;/title&gt;&lt;/head&gt;
-&lt;body&gt;&lt;h1&gt;Hello Viziag Mart&lt;/h1&gt;&lt;/body&gt;
-&lt;/html&gt;</textarea>
-        
-        <button onclick="generateFiles()">1. Generate All Files & Code (सभी फाइलों का कोड देखें)</button>
-        <button class="push-btn" onclick="pushAllToGitHub()">2. Auto Push All to GitHub (सीधे गिटहब पर भेजें) 🚀</button>
-        <div id="statusMsg" class="status"></div>
+    <!-- वीडियो फ्रेम और इफ़ेक्ट -->
+    <div class="video-container" id="videoContainer">
+        <span class="placeholder-text" id="placeholderText">अपनी इमेज अपलोड करके 'चलाओ' बटन दबाएं...</span>
+        <img id="resultImage" class="cinematic-image" alt="Cinematic View">
+        <div class="water-overlay" id="waterOverlay"></div>
     </div>
 
-    <div id="result"></div>
-</div>
+    <!-- डाउनलोड बटन -->
+    <a id="downloadBtn" class="download-btn" href="#" download="cinematic-view.jpg">💾 फोटो सेव करें</a>
 
-<script>
-// Save settings to Browser LocalStorage
-function saveSettings() {
-    const user = document.getElementById('ghUser').value.trim();
-    const repo = document.getElementById('ghRepo').value.trim();
-    const token = document.getElementById('ghToken').value.trim();
+    <script>
+        function playCinematicEffect() {
+            const fileInput = document.getElementById('imageInput');
+            const placeholder = document.getElementById('placeholderText');
+            const resultImg = document.getElementById('resultImage');
+            const waterOverlay = document.getElementById('waterOverlay');
+            const downloadBtn = document.getElementById('downloadBtn');
 
-    if (!user || !repo || !token) {
-        alert("कृपया सभी सेटिंग्स (Username, Repo, Token) भरें!");
-        return;
-    }
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
 
-    localStorage.setItem('gh_user', user);
-    localStorage.setItem('gh_repo', repo);
-    localStorage.setItem('gh_token', token);
+                reader.onload = function(e) {
+                    const imageUrl = e.target.result;
 
-    lockSettings(true);
-    alert("सेटिंग्स सफलतापूर्वक सेव हो गई हैं! अब यह डिलीट नहीं होंगी।");
-}
+                    // यूआई अपडेट करना
+                    placeholder.style.display = 'none';
+                    resultImg.src = imageUrl;
+                    resultImg.style.display = 'block';
+                    resultImg.classList.add('active-zoom'); // ज़ूम इफ़ेक्ट शुरू
+                    waterOverlay.style.display = 'block';   // बहते पानी का इफ़ेक्ट शुरू
 
-// Load settings on page start
-function loadSettings() {
-    const user = localStorage.getItem('gh_user');
-    const repo = localStorage.getItem('gh_repo');
-    const token = localStorage.getItem('gh_token');
+                    // डाउनलोड लिंक सेट करना
+                    downloadBtn.href = imageUrl;
+                    downloadBtn.style.display = 'inline-block';
+                }
 
-    if (user && repo && token) {
-        document.getElementById('ghUser').value = user;
-        document.getElementById('ghRepo').value = repo;
-        document.getElementById('ghToken').value = token;
-        lockSettings(true);
-    }
-}
-
-// Lock inputs after saving
-function lockSettings(lock) {
-    document.getElementById('ghUser').disabled = lock;
-    document.getElementById('ghRepo').disabled = lock;
-    document.getElementById('ghToken').disabled = lock;
-
-    if (lock) {
-        document.getElementById('saveBtn').style.display = 'none';
-        document.getElementById('editBtn').style.display = 'block';
-    } else {
-        document.getElementById('saveBtn').style.display = 'block';
-        document.getElementById('editBtn').style.display = 'none';
-    }
-}
-
-// Unlock inputs for editing
-function editSettings() {
-    lockSettings(false);
-}
-
-function getProjectFiles() {
-    const app = document.getElementById('appName').value || "ViziagApp";
-    const pkg = document.getElementById('pkgName').value || "com.viziag.app";
-    const html = document.getElementById('htmlCode').value || "<h1>Hello</h1>";
-
-    // 1. GitHub Actions Workflow for Flutter APK Build
-    const wf = `name: Build Flutter APK
-
-on: [push]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.19.0'
-          channel: 'stable'
-
-      - name: Get Dependencies
-        run: flutter pub get
-
-      - name: Build Release APK
-        run: flutter build apk --release
-
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: flutter-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk`;
-
-    // 2. pubspec.yaml
-    const pubspec = `name: viziag_app
-description: "A new Flutter project generated from HTML."
-publish_to: 'none'
-version: 1.0.0+1
-
-environment:
-  sdk: '>=3.0.0 <4.0.0'
-
-dependencies:
-  flutter:
-    sdk: flutter
-  webview_flutter: ^4.4.4
-  cupertino_icons: ^1.0.6
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.0
-
-flutter:
-  uses-material-design: true
-  assets:
-    - assets/index.html`;
-
-    // 3. lib/main.dart
-    const main = `import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: '${app}',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const WebViewPage(),
-    );
-  }
-}
-
-class WebViewPage extends StatefulWidget {
-  const WebViewPage({super.key});
-
-  @override
-  State<WebViewPage> createState() => _WebViewPageState();
-}
-
-class _WebViewPageState extends State<WebViewPage> {
-  late final WebViewController controller;
-
-  @override
-  void initState() {
-    super.initState();
-    controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onProgress: (int progress) {},
-          onPageStarted: (String url) {},
-          onPageFinished: (String url) {},
-          onHttpError: (HttpResponseError error) {},
-          onWebResourceError: (WebResourceError error) {},
-        ),
-      )
-      ..loadFlutterAsset('assets/index.html');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: WebViewWidget(controller: controller),
-      ),
-    );
-  }
-}`;
-
-    // 4. Android Manifest
-    const mani = `<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-permission android:name="android.permission.INTERNET" />
-    <application
-        android:label="${app}"
-        android:name="\${applicationName}"
-        android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true">
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:taskAffinity=""
-            android:theme="@style/LaunchTheme"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-            android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize">
-            <meta-data
-              android:name="io.flutter.embedding.android.NormalTheme"
-              android:resource="@style/NormalTheme"
-              />
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-        <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
-    </application>
-</manifest>`;
-
-    // 5. android/app/build.gradle
-    const appGradle = `plugins {
-    id "com.android.application"
-    id "kotlin-android"
-    id "dev.flutter.flutter-gradle-plugin"
-}
-
-android {
-    namespace "${pkg}"
-    compileSdk flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
-
-    kotlinOptions {
-        jvmTarget = '1.7'
-    }
-
-    defaultConfig {
-        applicationId "${pkg}"
-        minSdk 21
-        targetSdk flutter.targetSdkVersion
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
-    }
-
-    buildTypes {
-        release {
-            signingConfig signingConfigs.debug
-        }
-    }
-}
-
-flutter {
-    source '../..'
-}`;
-
-    // 6. android/build.gradle
-    const projectGradle = `allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-rootProject.buildDir = '../build'
-subprojects {
-    project.buildDir = "\${rootProject.buildDir}/\${project.name}"
-}
-subprojects {
-    project.evaluationDependsOn(":app")
-}
-
-tasks.register("clean", Delete) {
-    delete rootProject.buildDir
-}`;
-
-    // 7. android/gradle.properties
-    const gradleProps = `org.gradle.jvmargs=-Xmx1538M
-android.useAndroidX=true
-android.enableJetifier=true`;
-
-    return [
-        { path: ".github/workflows/build-apk.yml", content: wf },
-        { path: "pubspec.yaml", content: pubspec },
-        { path: "lib/main.dart", content: main },
-        { path: "assets/index.html", content: html },
-        { path: "android/app/src/main/AndroidManifest.xml", content: mani },
-        { path: "android/app/build.gradle", content: appGradle },
-        { path: "android/build.gradle", content: projectGradle },
-        { path: "android/gradle.properties", content: gradleProps }
-    ];
-}
-
-function generateFiles() {
-    const files = getProjectFiles();
-    let htmlOut = "";
-    files.forEach((f, index) => {
-        const uniqueId = 'code_' + index;
-        htmlOut += `
-            <div class="file-box">
-                <div class="path">📁 File Path: ${f.path}</div>
-                <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('${uniqueId}').innerText); alert('Code Copied!');">Copy Full Code</button>
-                <pre><code id="${uniqueId}">${escapeHtml(f.content)}</code></pre>
-            </div>
-        `;
-    });
-    document.getElementById('result').innerHTML = htmlOut;
-    document.getElementById('statusMsg').innerText = "सफलतापूर्वक सभी फाइलों का कोड तैयार है!";
-    document.getElementById('statusMsg').style.color = "#38bdf8";
-}
-
-async function pushAllToGitHub() {
-    const user = document.getElementById('ghUser').value.trim();
-    const repo = document.getElementById('ghRepo').value.trim();
-    const token = document.getElementById('ghToken').value.trim();
-    const status = document.getElementById('statusMsg');
-
-    if (!user || !repo || !token) {
-        alert("कृपया पहले सेटिंग्स सेव करें!");
-        return;
-    }
-
-    const files = getProjectFiles();
-    status.innerText = "गिटहब पर फाइलें भेजी जा रही हैं, कृपया प्रतीक्षा करें...";
-    status.style.color = "#facc15";
-
-    for (let f of files) {
-        try {
-            const url = `https://api.github.com/repos/${user}/${repo}/contents/${f.path}`;
-            let sha = "";
-            const getRes = await fetch(url, {
-                headers: { "Authorization": `token ${token}` }
-            });
-            if (getRes.ok) {
-                const data = await getRes.json();
-                sha = data.sha;
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                alert('भाई, पहले कोई इमेज तो चुन ले!');
             }
-
-            const bodyData = {
-                message: `Auto push ${f.path} via Web Tool`,
-                content: btoa(unescape(encodeURIComponent(f.content)))
-            };
-            if (sha) bodyData.sha = sha;
-
-            const putRes = await fetch(url, {
-                method: "PUT",
-                headers: {
-                    "Authorization": `token ${token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(bodyData)
-            });
-
-            if (!putRes.ok) {
-                throw new Error(`Failed to upload ${f.path}`);
-            }
-        } catch (err) {
-            status.innerText = "एरर आया: " + err.message;
-            status.style.color = "#ef4444";
-            return;
         }
-    }
-
-    status.innerText = "सफलतापूर्वक सारी फाइलें गिटहब पर पुश हो गईं! 🚀 अब Actions टैब चेक करें।";
-    status.style.color = "#34d399";
-}
-
-function escapeHtml(t) {
-    return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-</script>
-
+    </script>
 </body>
 </html>
