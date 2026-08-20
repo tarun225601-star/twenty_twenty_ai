@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>360 Cinematic Studio & Real Audio Player</title>
+    <title>360 Multi-Image Slideshow Video Studio</title>
     <style>
         * {
             margin: 0;
@@ -26,6 +26,7 @@
             margin-bottom: 15px;
             font-size: 22px;
             letter-spacing: 0.5px;
+            text-align: center;
         }
 
         /* कण्ट्रोल पैनल */
@@ -49,7 +50,7 @@
             flex-wrap: wrap;
         }
 
-        input[type="file"], select {
+        input[type="file"], input[type="text"], select {
             flex: 1;
             padding: 10px;
             background: #1f2430;
@@ -74,14 +75,17 @@
             background: #4f46e5;
         }
 
-        .test-btn {
-            background: #0ea5e9;
+        .record-btn {
+            background: #ef4444;
+            display: none;
+            width: 100%;
+            margin-top: 5px;
         }
-        .test-btn:hover {
-            background: #0284c7;
+        .record-btn:hover {
+            background: #dc2626;
         }
 
-        /* 360 वीडियो फ्रेम */
+        /* वीडियो फ्रेम */
         .video-container {
             position: relative;
             width: 100%;
@@ -103,21 +107,16 @@
             height: 120%;
             object-fit: cover;
             display: none;
-        }
-
-        .active-360-motion {
-            display: block;
-            animation: motion360 15s infinite alternate ease-in-out;
+            position: absolute;
+            animation: motion360 8s infinite alternate ease-in-out;
         }
 
         @keyframes motion360 {
             0% { transform: scale(1) translate(0px, 0px) rotate(0deg); }
-            33% { transform: scale(1.12) translate(-30px, -15px) rotate(1deg); }
-            66% { transform: scale(1.12) translate(30px, 10px) rotate(-1deg); }
-            100% { transform: scale(1.05) translate(0px, 0px) rotate(0deg); }
+            50% { transform: scale(1.12) translate(-20px, -10px) rotate(1deg); }
+            100% { transform: scale(1.05) translate(20px, 10px) rotate(-1deg); }
         }
 
-        /* पानी और शैडो ओवरले */
         .water-overlay {
             position: absolute;
             top: 0;
@@ -128,6 +127,7 @@
             mix-blend-mode: overlay;
             pointer-events: none;
             display: none;
+            z-index: 2;
         }
 
         .vignette {
@@ -139,6 +139,7 @@
             box-shadow: inset 0 0 60px rgba(0,0,0,0.7);
             pointer-events: none;
             display: none;
+            z-index: 3;
         }
 
         .placeholder-text {
@@ -146,60 +147,71 @@
             font-size: 15px;
             text-align: center;
             padding: 0 20px;
+            z-index: 4;
         }
 
-        /* डाउनलोड और एक्शन बटन */
         .actions-box {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
             justify-content: center;
+            width: 100%;
+            max-width: 800px;
         }
 
-        .download-btn {
+        .download-video-btn {
             display: none;
             background: #10b981;
             text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 12px 25px;
+            border-radius: 8px;
             color: white;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 15px;
             text-align: center;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
         }
-        .download-btn:hover { background: #059669; }
+        .download-video-btn:hover { background: #059669; }
     </style>
 </head>
 <body>
 
-    <h2>360 Cinematic Studio with Live Audio Test & Player</h2>
+    <h2>360 Multi-Image Slideshow Studio & Video Recorder</h2>
 
     <!-- कण्ट्रोल बॉक्स -->
     <div class="control-box">
-        <div class="row">
-            <!-- इमेज अपलोड -->
-            <input type="file" id="imageInput" accept="image/*">
+        <div class="row" style="flex-direction: column; align-items: stretch; gap: 6px;">
+            <label style="font-size: 13px; color: #94a3b8;">📁 एक साथ कई सारी (5-10) इमेज सेलेक्ट करें:</label>
+            <input type="file" id="imageInput" accept="image/*" multiple>
         </div>
-        <div class="row">
-            <!-- रियल ऑनलाइन म्यूजिक लिस्ट -->
-            <select id="musicSelector">
-                <option value="">-- ऑनलाइन बैकग्राउंड म्यूजिक / झरना चुनें --</option>
-                <option value="https://upload.wikimedia.org/wikipedia/commons/b/b2/Ambient_waterfall_sound_%28nature_ambience%29.ogg">💧 Nature Waterfall Ambience (Original Sound)</option>
-                <option value="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=relaxing-chill-out-110845.mp3">🎶 Relaxing Cinematic Chill (Music)</option>
+
+        <!-- इंस्टाग्राम स्टाइल म्यूजिक सर्च और लिस्ट -->
+        <div class="row" style="flex-direction: column; align-items: stretch; gap: 6px;">
+            <label style="font-size: 13px; color: #94a3b8;">🔍 इंस्टाग्राम स्टाइल गाना सर्च करें (जैसे: Waterfall, Chill, Piano):</label>
+            <input type="text" id="musicSearch" placeholder="गाने का नाम या मूड टाइप करें..." onkeyup="filterMusicList()">
+            
+            <select id="musicSelector" size="3" style="height: 80px;">
+                <option value="https://upload.wikimedia.org/wikipedia/commons/b/b2/Ambient_waterfall_sound_%28nature_ambience%29.ogg">💧 Nature Waterfall Ambience</option>
+                <option value="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=relaxing-chill-out-110845.mp3">🎶 Relaxing Cinematic Chill</option>
                 <option value="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=ambient-piano-and-strings-10711.mp3">🎹 Peaceful Piano & Ambient Strings</option>
+                <option value="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c3a75878.mp3?filename=epic-adventure-trailer-110683.mp3">🔥 Epic Adventure Cinematic</option>
             </select>
-            <!-- पहले गाना बजाकर चेक करने का बटन -->
-            <button type="button" class="test-btn" onclick="testSelectedMusic()">🔊गाना सुनकर देखें</button>
         </div>
+
         <div class="row">
-            <button style="width:100%; background: #6366f1;" onclick="startExperience()">🎬 360 व्यू और वीडियो प्ले करें</button>
+            <button type="button" style="background: #0ea5e9; flex:1;" onclick="testSelectedMusic()">🔊 गाना सुनकर चेक करें</button>
+            <button type="button" style="background: #6366f1; flex:1;" onclick="startSlideshow()">🎬 स्लाइडशो वीडियो चालू करें</button>
         </div>
+
+        <!-- वीडियो रिकॉर्ड बटन -->
+        <button id="recordBtn" class="record-btn" onclick="recordAndExportVideo()">🔴 पूरी वीडियो (म्यूजिक + स्लाइडशो) रिकॉर्ड करके गैलरी में सेव करें</button>
     </div>
 
-    <!-- वीडियो जैसा एनिमेटेड फ्रेम -->
+    <!-- वीडियो फ्रेम जहाँ इमेजेस बदलेंगी -->
     <div class="video-container" id="videoContainer">
-        <span class="placeholder-text" id="placeholderText">अपनी फोटो अपलोड करें, म्यूजिक चेक करें और फिर '360 व्यू' चलाएं!</span>
-        <img id="resultImage" class="cinematic-image" alt="360 View">
+        <span class="placeholder-text" id="placeholderText">कई सारी फोटो अपलोड करें, गाना चुनें और 'स्लाइडशो चालू करें' दबाएं!</span>
+        <div id="imageWrapper" style="position:relative; width:100%; height:100%;"></div>
         <div class="water-overlay" id="waterOverlay"></div>
         <div class="vignette" id="vignetteLayer"></div>
     </div>
@@ -207,73 +219,165 @@
     <!-- ऑडियो प्लेयर -->
     <audio id="bgMusic" crossorigin="anonymous" loop></audio>
 
-    <!-- डाउनलोड बटन -->
+    <!-- डाउनलोड वीडियो बटन -->
     <div class="actions-box">
-        <a id="downloadImageBtn" class="download-btn" href="#" download="cinematic-360-view.jpg">💾 एनिमेटेड फोटो सेव करें</a>
+        <a id="downloadVideoBtn" class="download-video-btn" download="slideshow-motion-video.webm">📥 वीडियो गैलरी में डाउनलोड करें (.webm)</a>
     </div>
 
     <script>
         const bgMusic = document.getElementById('bgMusic');
+        let uploadedImages = [];
+        let currentImageIndex = 0;
+        let slideInterval = null;
+        let mediaRecorder;
+        let recordedChunks = [];
 
-        // गाना सेलेक्ट करके पहले टेस्ट (सुनकर देखने) के लिए फंक्शन
+        // इंस्टाग्राम स्टाइल सर्च फंक्शन
+        function filterMusicList() {
+            let input = document.getElementById('musicSearch').value.toLowerCase();
+            let select = document.getElementById('musicSelector');
+            let options = select.options;
+
+            for (let i = 0; i < options.length; i++) {
+                let text = options[i].text.toLowerCase();
+                if (text.includes(input)) {
+                    options[i].style.display = "";
+                } else {
+                    options[i].style.display = "none";
+                }
+            }
+        }
+
         function testSelectedMusic() {
             const musicSelector = document.getElementById('musicSelector');
-            const selectedUrl = musicSelector.value;
-
-            if (!selectedUrl) {
-                alert('भाई, पहले लिस्ट में से कोई गाना तो सेलेक्ट कर!');
+            if (!musicSelector.value) {
+                alert('भाई, पहले लिस्ट में से गाना तो सेलेक्ट कर!');
                 return;
             }
-
-            bgMusic.src = selectedUrl;
+            bgMusic.src = musicSelector.value;
             bgMusic.currentTime = 0;
             bgMusic.play().then(() => {
-                alert('गाना बज रहा है भाई! चेक कर ले, पसंद आए तो रोककर फाइनल व्यू चला देना। (बंद करने के लिए ओके दबाएं)');
+                alert('गाना बज रहा है! चेक कर ले।');
             }).catch(err => {
-                alert('गाना लोड होने में दिक्कत आई, दूसरा सेलेक्ट करके देखें।');
-                console.error(err);
+                alert('गाना लोड होने में दिक्कत आई।');
             });
         }
 
-        // फाइनल 360 व्यू और म्यूजिक चलाने का फंक्शन
-        function startExperience() {
+        // मल्टी-इमेज स्लाइडशो चालू करने का फंक्शन
+        function startSlideshow() {
             const fileInput = document.getElementById('imageInput');
             const musicSelector = document.getElementById('musicSelector');
             const placeholder = document.getElementById('placeholderText');
-            const resultImg = document.getElementById('resultImage');
+            const imageWrapper = document.getElementById('imageWrapper');
             const waterOverlay = document.getElementById('waterOverlay');
             const vignetteLayer = document.getElementById('vignetteLayer');
-            const downloadImageBtn = document.getElementById('downloadImageBtn');
+            const recordBtn = document.getElementById('recordBtn');
 
-            if (!fileInput.files || !fileInput.files[0]) {
-                alert('भाई, पहले अपनी कोई बढ़िया फोटो तो अपलोड कर!');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('भाई, कम से कम 2-4 फोटो तो सेलेक्ट कर!');
                 return;
             }
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imageUrl = e.target.result;
+            uploadedImages = [];
+            imageWrapper.innerHTML = '';
 
-                // स्क्रीन सेटिंग्स अपडेट
-                placeholder.style.display = 'none';
-                resultImg.src = imageUrl;
-                resultImg.style.display = 'block';
-                resultImg.classList.add('active-360-motion');
-                waterOverlay.style.display = 'block';
-                vignetteLayer.style.display = 'block';
+            // सभी अपलोड की गई इमेज को रीड करना
+            let filesLoaded = 0;
+            Array.from(fileInput.files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImages.push(e.target.result);
+                    
+                    // इमेज एलिमेंट बनाना
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'cinematic-image';
+                    if (index === 0) img.style.display = 'block'; // पहली इमेज दिखायें
+                    imageWrapper.appendChild(img);
 
-                // अगर म्यूजिक सेलेक्ट किया है तो उसे फाइनल प्ले करना
-                if (musicSelector.value) {
-                    bgMusic.src = musicSelector.value;
-                    bgMusic.currentTime = 0;
-                    bgMusic.play().catch(err => console.log("Audio play error:", err));
-                }
+                    filesLoaded++;
+                    if (filesLoaded === fileInput.files.length) {
+                        runSlideshowEngine();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
 
-                // डाउनलोड बटन दिखाना
-                downloadImageBtn.href = imageUrl;
-                downloadImageBtn.style.display = 'inline-block';
-            };
-            reader.readAsDataURL(fileInput.files[0]);
+            placeholder.style.display = 'none';
+            waterOverlay.style.display = 'block';
+            vignetteLayer.style.display = 'block';
+
+            if (musicSelector.value) {
+                bgMusic.src = musicSelector.value;
+                bgMusic.currentTime = 0;
+                bgMusic.play().catch(err => console.log(err));
+            }
+
+            recordBtn.style.display = 'block';
+        }
+
+        // हर 3 सेकंड में इमेज बदलने वाला इंजन
+        function runSlideshowEngine() {
+            const imgs = document.querySelectorAll('#imageWrapper img');
+            if (imgs.length <= 1) return;
+
+            if (slideInterval) clearInterval(slideInterval);
+
+            currentImageIndex = 0;
+            slideInterval = setInterval(() => {
+                imgs[currentImageIndex].style.display = 'none';
+                currentImageIndex = (currentImageIndex + 1) % imgs.length;
+                imgs[currentImageIndex].style.display = 'block';
+            }, 3000); // हर 3 सेकंड में फोटो बदलेगी
+        }
+
+        // पूरी वीडियो (स्लाइडशो + मोशन + गाना) रिकॉर्ड करके गैलरी में सेव करना
+        async function recordAndExportVideo() {
+            const container = document.getElementById('videoContainer');
+            const recordBtn = document.getElementById('recordBtn');
+            const downloadVideoBtn = document.getElementById('downloadVideoBtn');
+
+            recordBtn.innerText = "⏳ पूरी वीडियो रिकॉर्ड हो रही है (12 सेकंड रुकें)...";
+            recordBtn.disabled = true;
+            recordedChunks = [];
+
+            try {
+                const stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { mediaSource: "screen" },
+                    audio: true
+                });
+
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
+
+                mediaRecorder.ondataavailable = function(event) {
+                    if (event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = function() {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    const videoUrl = URL.createObjectURL(blob);
+                    
+                    downloadVideoBtn.href = videoUrl;
+                    downloadVideoBtn.style.display = 'block';
+                    recordBtn.innerText = "✅ वीडियो तैयार है! नीचे डाउनलोड बटन दबाएं";
+                    alert('भाई, तेरी मल्टी-इमेज स्लाइडशो वाली वीडियो गाने के साथ तैयार है! नीचे दिए गए हरे बटन से डाउनलोड कर ले।');
+                };
+
+                mediaRecorder.start();
+                // 12 सेकंड तक रिकॉर्डिंग चलेगी ताकि चारों-पाँचों फोटो आराम से स्लाइड हो सकें
+                setTimeout(() => {
+                    mediaRecorder.stop();
+                    stream.getTracks().forEach(track => track.stop());
+                }, 12000);
+
+            } catch (err) {
+                console.error(err);
+                alert('रिकॉर्ड करने की अनुमति नहीं मिली।');
+                recordBtn.innerText = "🔴 पूरी वीडियो रिकॉर्ड करके गैलरी में सेव करें";
+                recordBtn.disabled = false;
+            }
         }
     </script>
 </body>
