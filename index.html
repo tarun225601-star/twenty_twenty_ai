@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>360 Multi-Image Slideshow Video Studio</title>
+    <title>360 Multi-Image Slideshow & Real Music Studio</title>
     <style>
         * {
             margin: 0;
@@ -29,7 +29,6 @@
             text-align: center;
         }
 
-        /* कण्ट्रोल पैनल */
         .control-box {
             display: flex;
             flex-direction: column;
@@ -85,7 +84,6 @@
             background: #dc2626;
         }
 
-        /* वीडियो फ्रेम */
         .video-container {
             position: relative;
             width: 100%;
@@ -101,7 +99,6 @@
             margin-bottom: 15px;
         }
 
-        /* 360 मोशन इफ़ेक्ट */
         .cinematic-image {
             width: 120%;
             height: 120%;
@@ -177,40 +174,41 @@
 </head>
 <body>
 
-    <h2>360 Multi-Image Slideshow Studio & Video Recorder</h2>
+    <h2>360 Multi-Image Slideshow & Real Music Studio</h2>
 
-    <!-- कण्ट्रोल बॉक्स -->
     <div class="control-box">
+        <!-- एकाधिक इमेज अपलोड -->
         <div class="row" style="flex-direction: column; align-items: stretch; gap: 6px;">
-            <label style="font-size: 13px; color: #94a3b8;">📁 एक साथ कई सारी (5-10) इमेज सेलेक्ट करें:</label>
+            <label style="font-size: 13px; color: #94a3b8;">📁 अपनी कई सारी (5-10) फोटो एक साथ सेलेक्ट करें:</label>
             <input type="file" id="imageInput" accept="image/*" multiple>
         </div>
 
-        <!-- इंस्टाग्राम स्टाइल म्यूजिक सर्च और लिस्ट -->
+        <!-- इंस्टाग्राम स्टाइल रियल म्यूजिक सर्च और लिस्ट -->
         <div class="row" style="flex-direction: column; align-items: stretch; gap: 6px;">
-            <label style="font-size: 13px; color: #94a3b8;">🔍 इंस्टाग्राम स्टाइल गाना सर्च करें (जैसे: Waterfall, Chill, Piano):</label>
+            <label style="font-size: 13px; color: #94a3b8;">🔍 इंस्टाग्राम की तरह रियल गाने सर्च करें (टाइप करें: Chill, Piano, Epic, Water):</label>
             <input type="text" id="musicSearch" placeholder="गाने का नाम या मूड टाइप करें..." onkeyup="filterMusicList()">
             
-            <select id="musicSelector" size="3" style="height: 80px;">
-                <option value="https://upload.wikimedia.org/wikipedia/commons/b/b2/Ambient_waterfall_sound_%28nature_ambience%29.ogg">💧 Nature Waterfall Ambience</option>
-                <option value="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=relaxing-chill-out-110845.mp3">🎶 Relaxing Cinematic Chill</option>
-                <option value="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=ambient-piano-and-strings-10711.mp3">🎹 Peaceful Piano & Ambient Strings</option>
-                <option value="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c3a75878.mp3?filename=epic-adventure-trailer-110683.mp3">🔥 Epic Adventure Cinematic</option>
+            <select id="musicSelector" size="4" style="height: 100px;">
+                <option value="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=relaxing-chill-out-110845.mp3">🎶 Relaxing Chill Out (Chill, Calm, Relax)</option>
+                <option value="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=ambient-piano-and-strings-10711.mp3">🎹 Peaceful Piano & Ambient Strings (Piano, Sad)</option>
+                <option value="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c3a75878.mp3?filename=epic-adventure-trailer-110683.mp3">🔥 Epic Adventure Cinematic (Epic, Action, Fast)</option>
+                <option value="https://cdn.pixabay.com/download/audio/2022/02/23/audio_b7e454f783.mp3?filename=waterfall-nature-ambient-9814.mp3">💧 Waterfall Nature Ambient Sound (Water, Nature)</option>
+                <option value="https://cdn.pixabay.com/download/audio/2022/08/04/audio_2dde668d05.mp3?filename=Motivational-Daylight-115904.mp3">🌟 Motivational Daylight (Happy, Uplifting)</option>
             </select>
         </div>
 
         <div class="row">
             <button type="button" style="background: #0ea5e9; flex:1;" onclick="testSelectedMusic()">🔊 गाना सुनकर चेक करें</button>
-            <button type="button" style="background: #6366f1; flex:1;" onclick="startSlideshow()">🎬 स्लाइडशो वीडियो चालू करें</button>
+            <button type="button" style="background: #6366f1; flex:1;" onclick="startSlideshow()">🎬 स्लाइडशो और वीडियो चालू करें</button>
         </div>
 
         <!-- वीडियो रिकॉर्ड बटन -->
         <button id="recordBtn" class="record-btn" onclick="recordAndExportVideo()">🔴 पूरी वीडियो (म्यूजिक + स्लाइडशो) रिकॉर्ड करके गैलरी में सेव करें</button>
     </div>
 
-    <!-- वीडियो फ्रेम जहाँ इमेजेस बदलेंगी -->
+    <!-- वीडियो फ्रेम -->
     <div class="video-container" id="videoContainer">
-        <span class="placeholder-text" id="placeholderText">कई सारी फोटो अपलोड करें, गाना चुनें और 'स्लाइडशो चालू करें' दबाएं!</span>
+        <span class="placeholder-text" id="placeholderText">फोटो अपलोड करें, सर्च बार से गाना खोजकर चुनें और स्लाइडशो चालू करें!</span>
         <div id="imageWrapper" style="position:relative; width:100%; height:100%;"></div>
         <div class="water-overlay" id="waterOverlay"></div>
         <div class="vignette" id="vignetteLayer"></div>
@@ -221,7 +219,7 @@
 
     <!-- डाउनलोड वीडियो बटन -->
     <div class="actions-box">
-        <a id="downloadVideoBtn" class="download-video-btn" download="slideshow-motion-video.webm">📥 वीडियो गैलरी में डाउनलोड करें (.webm)</a>
+        <a id="downloadVideoBtn" class="download-video-btn" download="my-slideshow-video.webm">📥 वीडियो गैलरी में डाउनलोड करें (.webm)</a>
     </div>
 
     <script>
@@ -232,7 +230,7 @@
         let mediaRecorder;
         let recordedChunks = [];
 
-        // इंस्टाग्राम स्टाइल सर्च फंक्शन
+        // इंस्टाग्राम स्टाइल लाइव सर्च फंक्शन
         function filterMusicList() {
             let input = document.getElementById('musicSearch').value.toLowerCase();
             let select = document.getElementById('musicSelector');
@@ -248,22 +246,24 @@
             }
         }
 
+        // रियल गाना प्रीव्यू फंक्शन
         function testSelectedMusic() {
             const musicSelector = document.getElementById('musicSelector');
             if (!musicSelector.value) {
-                alert('भाई, पहले लिस्ट में से गाना तो सेलेक्ट कर!');
+                alert('भाई, पहले लिस्ट में से कोई गाना तो सेलेक्ट कर!');
                 return;
             }
             bgMusic.src = musicSelector.value;
             bgMusic.currentTime = 0;
             bgMusic.play().then(() => {
-                alert('गाना बज रहा है! चेक कर ले।');
+                alert('गाना बज रहा है! चेक कर ले भाई। बंद करने के लिए ओके दबाएं।');
             }).catch(err => {
-                alert('गाना लोड होने में दिक्कत आई।');
+                alert('गाना लोड होने में दिक्कत आई। दूसरा सेलेक्ट करें।');
+                console.error(err);
             });
         }
 
-        // मल्टी-इमेज स्लाइडशो चालू करने का फंक्शन
+        // मल्टी-इमेज स्लाइडशो और म्यूजिक स्टार्ट करने का फंक्शन
         function startSlideshow() {
             const fileInput = document.getElementById('imageInput');
             const musicSelector = document.getElementById('musicSelector');
@@ -281,18 +281,16 @@
             uploadedImages = [];
             imageWrapper.innerHTML = '';
 
-            // सभी अपलोड की गई इमेज को रीड करना
             let filesLoaded = 0;
             Array.from(fileInput.files).forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     uploadedImages.push(e.target.result);
                     
-                    // इमेज एलिमेंट बनाना
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.className = 'cinematic-image';
-                    if (index === 0) img.style.display = 'block'; // पहली इमेज दिखायें
+                    if (index === 0) img.style.display = 'block';
                     imageWrapper.appendChild(img);
 
                     filesLoaded++;
@@ -316,7 +314,7 @@
             recordBtn.style.display = 'block';
         }
 
-        // हर 3 सेकंड में इमेज बदलने वाला इंजन
+        // स्लाइडशो मोशन इंजन (हर 3 सेकंड में फोटो बदलना)
         function runSlideshowEngine() {
             const imgs = document.querySelectorAll('#imageWrapper img');
             if (imgs.length <= 1) return;
@@ -328,16 +326,16 @@
                 imgs[currentImageIndex].style.display = 'none';
                 currentImageIndex = (currentImageIndex + 1) % imgs.length;
                 imgs[currentImageIndex].style.display = 'block';
-            }, 3000); // हर 3 सेकंड में फोटो बदलेगी
+            }, 3000);
         }
 
-        // पूरी वीडियो (स्लाइडशो + मोशन + गाना) रिकॉर्ड करके गैलरी में सेव करना
+        // असली वीडियो रिकॉर्डिंग और गैलरी एक्सपोर्ट सिस्टम
         async function recordAndExportVideo() {
             const container = document.getElementById('videoContainer');
             const recordBtn = document.getElementById('recordBtn');
             const downloadVideoBtn = document.getElementById('downloadVideoBtn');
 
-            recordBtn.innerText = "⏳ पूरी वीडियो रिकॉर्ड हो रही है (12 सेकंड रुकें)...";
+            recordBtn.innerText = "⏳ वीडियो रिकॉर्ड हो रहा है (12 सेकंड रुकें)...";
             recordBtn.disabled = true;
             recordedChunks = [];
 
@@ -362,11 +360,10 @@
                     downloadVideoBtn.href = videoUrl;
                     downloadVideoBtn.style.display = 'block';
                     recordBtn.innerText = "✅ वीडियो तैयार है! नीचे डाउनलोड बटन दबाएं";
-                    alert('भाई, तेरी मल्टी-इमेज स्लाइडशो वाली वीडियो गाने के साथ तैयार है! नीचे दिए गए हरे बटन से डाउनलोड कर ले।');
+                    alert('भाई, तेरी वीडियो गाने और स्लाइडशो के साथ तैयार है! नीचे दिए गए हरे बटन से डाउनलोड कर ले।');
                 };
 
                 mediaRecorder.start();
-                // 12 सेकंड तक रिकॉर्डिंग चलेगी ताकि चारों-पाँचों फोटो आराम से स्लाइड हो सकें
                 setTimeout(() => {
                     mediaRecorder.stop();
                     stream.getTracks().forEach(track => track.stop());
