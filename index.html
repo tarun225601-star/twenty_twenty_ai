@@ -3,22 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GovTech AI - सरकारी वैकेंसी ऑटो-फिल इंजन</title>
-    <!-- Tesseract.js (फोटो से टेक्स्ट पढ़ने के लिए) -->
+    <title>GovTech AI - Sarkari Form Automation</title>
+    <!-- Tesseract.js OCR for document scanning -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         body { font-family: sans-serif; background: #0f172a; color: #fff; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 600px; }
-        .card { background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        .card { background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); position: relative; }
         h2, h3 { color: #38bdf8; margin-top: 0; }
-        .job-box { background: #334155; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #22c55e; }
-        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #fff; font-size: 16px; box-sizing: border-box; }
+        
+        /* गियर आइकन (Settings) */
+        .gear-icon { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: #94a3b8; }
+        .gear-icon:hover { color: #38bdf8; }
+        .settings-panel { background: #0f172a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #475569; display: none; }
+
+        /* वैकेंसी बॉक्स */
+        .job-box { background: #334155; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 5px solid #22c55e; }
+        .job-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; color: #f8fafc; }
+        .job-info { font-size: 13px; color: #94a3b8; margin-bottom: 10px; }
+        .job-actions { display: flex; gap: 10px; }
+        
+        input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #fff; font-size: 16px; box-sizing: border-box; }
         .upload-box { border: 2px dashed #475569; padding: 15px; text-align: center; border-radius: 8px; cursor: pointer; background: #0f172a; }
         input[type="file"] { display: none; }
+        
         button { background: #22c55e; color: #fff; font-weight: bold; border: none; cursor: pointer; }
         button:hover { background: #16a34a; }
-        .ai-btn { background: #8b5cf6; }
-        .ai-btn:hover { background: #7c3aed; }
+        .btn-visit { background: #3b82f6; flex: 1; text-align: center; text-decoration: none; padding: 10px; border-radius: 6px; font-size: 14px; display: inline-block; }
+        .btn-fill { background: #8b5cf6; flex: 1; }
+        
         #loading { color: #facc15; font-weight: bold; text-align: center; display: none; margin: 10px 0; }
     </style>
 </head>
@@ -26,42 +39,67 @@
 
 <div class="container">
 
-    <!-- भाग 1: लाइव सरकारी वैकेंसी कैटलॉग -->
+    <!-- भाग 1: डैशबोर्ड और लाइव वैकेंसी लिस्ट (Jagran Josh / Sarkari Result Style) -->
     <div class="card">
-        <h2>📢 उपलब्ध सरकारी वैकेंसी</h2>
-        <p>नीचे दी गई वैकेंसी में से चुनें:</p>
-        
-        <div class="job-box">
-            <h3>🚂 Railway RRB NTPC Recruitment 2026</h3>
-            <p>योग्यता: 12वीं पास / ग्रेजुएट</p>
-            <button onclick="selectJob('Railway RRB NTPC')">इस फॉर्म को भरें</button>
+        <!-- सेटिंग्स गियर आइकन -->
+        <div class="gear-icon" onclick="toggleSettings()">⚙️</div>
+        <h2>📢 ताजा सरकारी वैकेंसी</h2>
+        <p style="font-size: 14px; color: #94a3b8;">यहाँ से डायरेक्ट आधिकारिक वेबसाइट पर जाएं या AI से ऑटो-फिल करें:</p>
+
+        <!-- सेटिंग्स पैनल (API Key छिपाने/डालने के लिए) -->
+        <div class="settings-panel" id="settingsPanel">
+            <h4 style="margin:0 0 10px 0; color: #38bdf8;">⚙️ API सेटिंग्स</h4>
+            <label style="font-size: 13px;">Groq API Key (Model: llama-3.3-70b-versatile):</label>
+            <input type="password" id="groqKey" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx">
+            <button style="padding: 8px; font-size: 14px;" onclick="saveApiKey()">सेव करें</button>
         </div>
 
+        <!-- वैकेंसी 1 -->
         <div class="job-box">
-            <h3>👮 Delhi Police Constable Exam</h3>
-            <p>योग्यता: 12वीं पास</p>
-            <button onclick="selectJob('Delhi Police Constable')">इस फॉर्म को भरें</button>
+            <div class="job-title">🚂 Railway RRB NTPC Recruitment 2026</div>
+            <div class="job-info">योग्यता: 12वीं पास / ग्रेजुएट | अंतिम तिथि: नजदीक</div>
+            <div class="job-actions">
+                <a href="https://www.rrbapply.gov.in" target="_blank" class="btn-visit">🌐 आधिकारिक वेबसाइट</a>
+                <button class="btn-fill" onclick="selectJob('Railway RRB NTPC')">⚡ AI ऑटो-फिल</button>
+            </div>
+        </div>
+
+        <!-- वैकेंसी 2 -->
+        <div class="job-box">
+            <div class="job-title">📚 BPSC TRE 4.0 Teacher Recruitment</div>
+            <div class="job-info">योग्यता: B.Ed / Graduation | कुल पद: 32,388</div>
+            <div class="job-actions">
+                <a href="https://www.bpsc.bih.nic.in" target="_blank" class="btn-visit">🌐 आधिकारिक वेबसाइट</a>
+                <button class="btn-fill" onclick="selectJob('BPSC Teacher Form')">⚡ AI ऑटो-फिल</button>
+            </div>
+        </div>
+
+        <!-- वैकेंसी 3 -->
+        <div class="job-box">
+            <div class="job-title">🏦 SBI Junior Associate (Clerk) Exam</div>
+            <div class="job-info">योग्यता: स्नातक (Graduate) | बंपर पद</div>
+            <div class="job-actions">
+                <a href="https://sbi.co.in/web/careers" target="_blank" class="btn-visit">🌐 आधिकारिक वेबसाइट</a>
+                <button class="btn-fill" onclick="selectJob('SBI Clerk Form')">⚡ AI ऑटो-फिल</button>
+            </div>
         </div>
     </div>
 
     <!-- भाग 2: डॉक्यूमेंट अपलोड और Groq AI ऑटो-फिल इंजन -->
     <div class="card" id="formSection">
-        <h2>⚡ AI ऑटो-फिल फॉर्म इंजन</h2>
-        <p id="selectedJobText" style="color: #22c55e; font-weight: bold;">चयनित वैकेंसी: कोई नहीं (ऊपर से चुनें)</p>
+        <h2>⚡ AI फॉर्म ऑटो-फिल इंजन</h2>
+        <p id="selectedJobText" style="color: #22c55e; font-weight: bold; font-size: 15px;">चयनित वैकेंसी: कोई नहीं (ऊपर से चुनें)</p>
 
-        <label>Groq API Key डालें:</label>
-        <input type="password" id="groqKey" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx">
-
-        <label>दस्तावेज (पैन कार्ड / आईडी) की फोटो चुनें:</label>
+        <label>दस्तावेज (पैन कार्ड / आधार / आईडी) की फोटो चुनें:</label>
         <div class="upload-box" onclick="document.getElementById('docFile').click()">
             📁 गैलरी से फोटो चुनें
             <div id="fileName" style="font-size: 13px; color: #94a3b8; margin-top: 5px;">फाइल नहीं चुनी गई</div>
         </div>
         <input type="file" id="docFile" accept="image/*" onchange="fileSelected(this)">
 
-        <button class="ai-btn" onclick="processWithGroqAI()">✨ Groq AI से ऑटो-फिल करें</button>
+        <button class="ai-btn" style="background: #8b5cf6;" onclick="processWithGroqAI()">✨ Llama-3.3-70b से ऑटो-फिल करें</button>
 
-        <div id="loading">🤖 Groq AI डॉक्यूमेंट पढ़ रहा है और फॉर्म भर रहा है...</div>
+        <div id="loading">🤖 AI डॉक्यूमेंट पढ़ रहा है और फॉर्म भर रहा है...</div>
 
         <hr style="border-color: #334155; margin: 20px 0;">
 
@@ -75,12 +113,38 @@
         <label>जन्मतिथि (DOB):</label>
         <input type="text" id="dob" placeholder="जन्मतिथि यहाँ आएगी...">
 
-        <button style="background: #3b82f6;" onclick="alert('🚀 फॉर्म सफलतापूर्वक सबमिट हो गया!')">फाइनल सबमिट करें</button>
+        <button style="background: #3b82f6;" onclick="alert('🚀 फॉर्म का डेटा तैयार है! इसे सरकारी पोर्टल पर पेस्ट कर सकते हैं।')">डेटा कॉपी करें</button>
     </div>
 
 </div>
 
 <script>
+    // गियर आइकन टॉगल करने के लिए
+    function toggleSettings() {
+        const panel = document.getElementById('settingsPanel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // API Key ब्राउज़र में सेव करना
+    function saveApiKey() {
+        const key = document.getElementById('groqKey').value.trim();
+        if(key) {
+            localStorage.setItem('groq_api_key', key);
+            alert('✅ API Key सुरक्षित सेव हो गई!');
+            toggleSettings();
+        } else {
+            alert('कृपया सही की (Key) डालें।');
+        }
+    }
+
+    // पेज लोड होते ही अगर Key सेव है तो लोड कर लेना
+    window.onload = function() {
+        const savedKey = localStorage.getItem('groq_api_key');
+        if(savedKey) {
+            document.getElementById('groqKey').value = savedKey;
+        }
+    }
+
     function selectJob(jobName) {
         document.getElementById('selectedJobText').innerText = "चयनित वैकेंसी: " + jobName;
         window.scrollTo({ top: document.getElementById('formSection').offsetTop, behavior: 'smooth' });
@@ -93,11 +157,12 @@
     }
 
     async function processWithGroqAI() {
-        const apiKey = document.getElementById('groqKey').value.trim();
+        const apiKey = document.getElementById('groqKey').value.trim() || localStorage.getItem('groq_api_key');
         const fileInput = document.getElementById('docFile');
 
         if(!apiKey) {
-            alert('भाई, अपनी Groq API Key तो डाल!');
+            alert('भाई, ऊपर गियर (⚙️) आइकॉन पर क्लिक करके अपनी Groq API Key डाल!');
+            toggleSettings();
             return;
         }
         if(fileInput.files.length === 0) {
@@ -109,14 +174,14 @@
         loading.style.display = 'block';
 
         try {
-            // स्टेप 1: Tesseract.js से फोटो का टेक्स्ट पढ़ना (OCR)
+            // स्टेप 1: Tesseract.js से फोटो का टेक्स्ट निकालना (OCR)
             const file = fileInput.files[0];
             const tesseractResult = await Tesseract.recognize(file, 'eng+hin');
             const extractedText = tesseractResult.data.text;
 
             console.log("OCR Text:", extractedText);
 
-            // स्टेप 2: Groq API (Llama 3.3 70b Versatile) को कॉल करना
+            // स्टेप 2: Groq API (llama-3.3-70b-versatile) को कॉल करना
             const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: {
@@ -143,7 +208,6 @@
             
             if(data.choices && data.choices.length > 0) {
                 let aiOutput = data.choices[0].message.content;
-                // क्लीनअप JSON
                 aiOutput = aiOutput.replace(/```json/g, '').replace(/```/g, '').trim();
                 const parsedData = JSON.parse(aiOutput);
 
@@ -152,7 +216,7 @@
                 document.getElementById('idNumber').value = parsedData.id || '';
                 document.getElementById('dob').value = parsedData.dob || '';
 
-                alert('✨ जादू हो गया! Groq AI ने डॉक्यूमेंट पढ़कर फॉर्म भर दिया है।');
+                alert('✨ जादू हो गया! Llama-3.3-70b ने डॉक्यूमेंट पढ़कर फॉर्म भर दिया है।');
             } else {
                 alert('Groq से सही जवाब नहीं मिला।');
             }
