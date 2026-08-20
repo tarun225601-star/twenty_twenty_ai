@@ -1,381 +1,169 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>360 Multi-Image Slideshow & Real Music Studio</title>
+    <title>GovTech AI - सरकारी वैकेंसी ऑटो-फिल इंजन</title>
+    <!-- Tesseract.js (फोटो से टेक्स्ट पढ़ने के लिए) -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: #0b0d12;
-            color: #fff;
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        h2 {
-            margin-bottom: 15px;
-            font-size: 22px;
-            letter-spacing: 0.5px;
-            text-align: center;
-        }
-
-        .control-box {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            width: 100%;
-            max-width: 750px;
-            margin-bottom: 20px;
-            background: #151821;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #2a2f3d;
-        }
-
-        .row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        input[type="file"], input[type="text"], select {
-            flex: 1;
-            padding: 10px;
-            background: #1f2430;
-            border: 1px solid #333;
-            color: #fff;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        button {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 6px;
-            background: #6366f1;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: #4f46e5;
-        }
-
-        .record-btn {
-            background: #ef4444;
-            display: none;
-            width: 100%;
-            margin-top: 5px;
-        }
-        .record-btn:hover {
-            background: #dc2626;
-        }
-
-        .video-container {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            height: 450px;
-            overflow: hidden;
-            border-radius: 12px;
-            background: #151821;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .cinematic-image {
-            width: 120%;
-            height: 120%;
-            object-fit: cover;
-            display: none;
-            position: absolute;
-            animation: motion360 8s infinite alternate ease-in-out;
-        }
-
-        @keyframes motion360 {
-            0% { transform: scale(1) translate(0px, 0px) rotate(0deg); }
-            50% { transform: scale(1.12) translate(-20px, -10px) rotate(1deg); }
-            100% { transform: scale(1.05) translate(20px, 10px) rotate(-1deg); }
-        }
-
-        .water-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(0, 130, 255, 0.12) 100%);
-            mix-blend-mode: overlay;
-            pointer-events: none;
-            display: none;
-            z-index: 2;
-        }
-
-        .vignette {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            box-shadow: inset 0 0 60px rgba(0,0,0,0.7);
-            pointer-events: none;
-            display: none;
-            z-index: 3;
-        }
-
-        .placeholder-text {
-            color: #475569;
-            font-size: 15px;
-            text-align: center;
-            padding: 0 20px;
-            z-index: 4;
-        }
-
-        .actions-box {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            width: 100%;
-            max-width: 800px;
-        }
-
-        .download-video-btn {
-            display: none;
-            background: #10b981;
-            text-decoration: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            color: white;
-            font-weight: bold;
-            font-size: 15px;
-            text-align: center;
-            width: 100%;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-        }
-        .download-video-btn:hover { background: #059669; }
+        body { font-family: sans-serif; background: #0f172a; color: #fff; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 600px; }
+        .card { background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        h2, h3 { color: #38bdf8; margin-top: 0; }
+        .job-box { background: #334155; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #22c55e; }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #fff; font-size: 16px; box-sizing: border-box; }
+        .upload-box { border: 2px dashed #475569; padding: 15px; text-align: center; border-radius: 8px; cursor: pointer; background: #0f172a; }
+        input[type="file"] { display: none; }
+        button { background: #22c55e; color: #fff; font-weight: bold; border: none; cursor: pointer; }
+        button:hover { background: #16a34a; }
+        .ai-btn { background: #8b5cf6; }
+        .ai-btn:hover { background: #7c3aed; }
+        #loading { color: #facc15; font-weight: bold; text-align: center; display: none; margin: 10px 0; }
     </style>
 </head>
 <body>
 
-    <h2>360 Multi-Image Slideshow & Real Music Studio</h2>
+<div class="container">
 
-    <div class="control-box">
-        <!-- एकाधिक इमेज अपलोड -->
-        <div class="row" style="flex-direction: column; align-items: stretch; gap: 6px;">
-            <label style="font-size: 13px; color: #94a3b8;">📁 अपनी कई सारी (5-10) फोटो एक साथ सेलेक्ट करें:</label>
-            <input type="file" id="imageInput" accept="image/*" multiple>
+    <!-- भाग 1: लाइव सरकारी वैकेंसी कैटलॉग -->
+    <div class="card">
+        <h2>📢 उपलब्ध सरकारी वैकेंसी</h2>
+        <p>नीचे दी गई वैकेंसी में से चुनें:</p>
+        
+        <div class="job-box">
+            <h3>🚂 Railway RRB NTPC Recruitment 2026</h3>
+            <p>योग्यता: 12वीं पास / ग्रेजुएट</p>
+            <button onclick="selectJob('Railway RRB NTPC')">इस फॉर्म को भरें</button>
         </div>
 
-        <!-- इंस्टाग्राम स्टाइल रियल म्यूजिक सर्च और लिस्ट -->
-        <div class="row" style="flex-direction: column; align-items: stretch; gap: 6px;">
-            <label style="font-size: 13px; color: #94a3b8;">🔍 इंस्टाग्राम की तरह रियल गाने सर्च करें (टाइप करें: Chill, Piano, Epic, Water):</label>
-            <input type="text" id="musicSearch" placeholder="गाने का नाम या मूड टाइप करें..." onkeyup="filterMusicList()">
+        <div class="job-box">
+            <h3>👮 Delhi Police Constable Exam</h3>
+            <p>योग्यता: 12वीं पास</p>
+            <button onclick="selectJob('Delhi Police Constable')">इस फॉर्म को भरें</button>
+        </div>
+    </div>
+
+    <!-- भाग 2: डॉक्यूमेंट अपलोड और Groq AI ऑटो-फिल इंजन -->
+    <div class="card" id="formSection">
+        <h2>⚡ AI ऑटो-फिल फॉर्म इंजन</h2>
+        <p id="selectedJobText" style="color: #22c55e; font-weight: bold;">चयनित वैकेंसी: कोई नहीं (ऊपर से चुनें)</p>
+
+        <label>Groq API Key डालें:</label>
+        <input type="password" id="groqKey" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx">
+
+        <label>दस्तावेज (पैन कार्ड / आईडी) की फोटो चुनें:</label>
+        <div class="upload-box" onclick="document.getElementById('docFile').click()">
+            📁 गैलरी से फोटो चुनें
+            <div id="fileName" style="font-size: 13px; color: #94a3b8; margin-top: 5px;">फाइल नहीं चुनी गई</div>
+        </div>
+        <input type="file" id="docFile" accept="image/*" onchange="fileSelected(this)">
+
+        <button class="ai-btn" onclick="processWithGroqAI()">✨ Groq AI से ऑटो-फिल करें</button>
+
+        <div id="loading">🤖 Groq AI डॉक्यूमेंट पढ़ रहा है और फॉर्म भर रहा है...</div>
+
+        <hr style="border-color: #334155; margin: 20px 0;">
+
+        <h3>ऑटो-फिल्ड फॉर्म डेटा</h3>
+        <label>पूरा नाम:</label>
+        <input type="text" id="fullName" placeholder="नाम यहाँ आएगा...">
+
+        <label>आईडी नंबर:</label>
+        <input type="text" id="idNumber" placeholder="नंबर यहाँ आएगा...">
+
+        <label>जन्मतिथि (DOB):</label>
+        <input type="text" id="dob" placeholder="जन्मतिथि यहाँ आएगी...">
+
+        <button style="background: #3b82f6;" onclick="alert('🚀 फॉर्म सफलतापूर्वक सबमिट हो गया!')">फाइनल सबमिट करें</button>
+    </div>
+
+</div>
+
+<script>
+    function selectJob(jobName) {
+        document.getElementById('selectedJobText').innerText = "चयनित वैकेंसी: " + jobName;
+        window.scrollTo({ top: document.getElementById('formSection').offsetTop, behavior: 'smooth' });
+    }
+
+    function fileSelected(input) {
+        if(input.files.length > 0) {
+            document.getElementById('fileName').innerText = "चुनी गई फाइल: " + input.files[0].name;
+        }
+    }
+
+    async function processWithGroqAI() {
+        const apiKey = document.getElementById('groqKey').value.trim();
+        const fileInput = document.getElementById('docFile');
+
+        if(!apiKey) {
+            alert('भाई, अपनी Groq API Key तो डाल!');
+            return;
+        }
+        if(fileInput.files.length === 0) {
+            alert('भाई, पहले गैलरी से डॉक्यूमेंट की फोटो तो सेलेक्ट कर!');
+            return;
+        }
+
+        const loading = document.getElementById('loading');
+        loading.style.display = 'block';
+
+        try {
+            // स्टेप 1: Tesseract.js से फोटो का टेक्स्ट पढ़ना (OCR)
+            const file = fileInput.files[0];
+            const tesseractResult = await Tesseract.recognize(file, 'eng+hin');
+            const extractedText = tesseractResult.data.text;
+
+            console.log("OCR Text:", extractedText);
+
+            // स्टेप 2: Groq API (Llama 3.3 70b Versatile) को कॉल करना
+            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${apiKey}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        {
+                            role: "system",
+                            content: "You are an AI data extractor. Extract Full Name, ID Number, and Date of Birth from the provided OCR text. Output ONLY valid JSON in this exact format without any markdown: {\"name\": \"...\", \"id\": \"...\", \"dob\": \"...\"}"
+                        },
+                        {
+                            role: "user",
+                            content: extractedText
+                        }
+                    ],
+                    temperature: 0.1
+                })
+            });
+
+            const data = await response.json();
             
-            <select id="musicSelector" size="4" style="height: 100px;">
-                <option value="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=relaxing-chill-out-110845.mp3">🎶 Relaxing Chill Out (Chill, Calm, Relax)</option>
-                <option value="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=ambient-piano-and-strings-10711.mp3">🎹 Peaceful Piano & Ambient Strings (Piano, Sad)</option>
-                <option value="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c3a75878.mp3?filename=epic-adventure-trailer-110683.mp3">🔥 Epic Adventure Cinematic (Epic, Action, Fast)</option>
-                <option value="https://cdn.pixabay.com/download/audio/2022/02/23/audio_b7e454f783.mp3?filename=waterfall-nature-ambient-9814.mp3">💧 Waterfall Nature Ambient Sound (Water, Nature)</option>
-                <option value="https://cdn.pixabay.com/download/audio/2022/08/04/audio_2dde668d05.mp3?filename=Motivational-Daylight-115904.mp3">🌟 Motivational Daylight (Happy, Uplifting)</option>
-            </select>
-        </div>
+            if(data.choices && data.choices.length > 0) {
+                let aiOutput = data.choices[0].message.content;
+                // क्लीनअप JSON
+                aiOutput = aiOutput.replace(/```json/g, '').replace(/```/g, '').trim();
+                const parsedData = JSON.parse(aiOutput);
 
-        <div class="row">
-            <button type="button" style="background: #0ea5e9; flex:1;" onclick="testSelectedMusic()">🔊 गाना सुनकर चेक करें</button>
-            <button type="button" style="background: #6366f1; flex:1;" onclick="startSlideshow()">🎬 स्लाइडशो और वीडियो चालू करें</button>
-        </div>
+                // फॉर्म के खानों में डेटा भरना
+                document.getElementById('fullName').value = parsedData.name || '';
+                document.getElementById('idNumber').value = parsedData.id || '';
+                document.getElementById('dob').value = parsedData.dob || '';
 
-        <!-- वीडियो रिकॉर्ड बटन -->
-        <button id="recordBtn" class="record-btn" onclick="recordAndExportVideo()">🔴 पूरी वीडियो (म्यूजिक + स्लाइडशो) रिकॉर्ड करके गैलरी में सेव करें</button>
-    </div>
-
-    <!-- वीडियो फ्रेम -->
-    <div class="video-container" id="videoContainer">
-        <span class="placeholder-text" id="placeholderText">फोटो अपलोड करें, सर्च बार से गाना खोजकर चुनें और स्लाइडशो चालू करें!</span>
-        <div id="imageWrapper" style="position:relative; width:100%; height:100%;"></div>
-        <div class="water-overlay" id="waterOverlay"></div>
-        <div class="vignette" id="vignetteLayer"></div>
-    </div>
-
-    <!-- ऑडियो प्लेयर -->
-    <audio id="bgMusic" crossorigin="anonymous" loop></audio>
-
-    <!-- डाउनलोड वीडियो बटन -->
-    <div class="actions-box">
-        <a id="downloadVideoBtn" class="download-video-btn" download="my-slideshow-video.webm">📥 वीडियो गैलरी में डाउनलोड करें (.webm)</a>
-    </div>
-
-    <script>
-        const bgMusic = document.getElementById('bgMusic');
-        let uploadedImages = [];
-        let currentImageIndex = 0;
-        let slideInterval = null;
-        let mediaRecorder;
-        let recordedChunks = [];
-
-        // इंस्टाग्राम स्टाइल लाइव सर्च फंक्शन
-        function filterMusicList() {
-            let input = document.getElementById('musicSearch').value.toLowerCase();
-            let select = document.getElementById('musicSelector');
-            let options = select.options;
-
-            for (let i = 0; i < options.length; i++) {
-                let text = options[i].text.toLowerCase();
-                if (text.includes(input)) {
-                    options[i].style.display = "";
-                } else {
-                    options[i].style.display = "none";
-                }
-            }
-        }
-
-        // रियल गाना प्रीव्यू फंक्शन
-        function testSelectedMusic() {
-            const musicSelector = document.getElementById('musicSelector');
-            if (!musicSelector.value) {
-                alert('भाई, पहले लिस्ट में से कोई गाना तो सेलेक्ट कर!');
-                return;
-            }
-            bgMusic.src = musicSelector.value;
-            bgMusic.currentTime = 0;
-            bgMusic.play().then(() => {
-                alert('गाना बज रहा है! चेक कर ले भाई। बंद करने के लिए ओके दबाएं।');
-            }).catch(err => {
-                alert('गाना लोड होने में दिक्कत आई। दूसरा सेलेक्ट करें।');
-                console.error(err);
-            });
-        }
-
-        // मल्टी-इमेज स्लाइडशो और म्यूजिक स्टार्ट करने का फंक्शन
-        function startSlideshow() {
-            const fileInput = document.getElementById('imageInput');
-            const musicSelector = document.getElementById('musicSelector');
-            const placeholder = document.getElementById('placeholderText');
-            const imageWrapper = document.getElementById('imageWrapper');
-            const waterOverlay = document.getElementById('waterOverlay');
-            const vignetteLayer = document.getElementById('vignetteLayer');
-            const recordBtn = document.getElementById('recordBtn');
-
-            if (!fileInput.files || fileInput.files.length === 0) {
-                alert('भाई, कम से कम 2-4 फोटो तो सेलेक्ट कर!');
-                return;
+                alert('✨ जादू हो गया! Groq AI ने डॉक्यूमेंट पढ़कर फॉर्म भर दिया है।');
+            } else {
+                alert('Groq से सही जवाब नहीं मिला।');
             }
 
-            uploadedImages = [];
-            imageWrapper.innerHTML = '';
-
-            let filesLoaded = 0;
-            Array.from(fileInput.files).forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    uploadedImages.push(e.target.result);
-                    
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.className = 'cinematic-image';
-                    if (index === 0) img.style.display = 'block';
-                    imageWrapper.appendChild(img);
-
-                    filesLoaded++;
-                    if (filesLoaded === fileInput.files.length) {
-                        runSlideshowEngine();
-                    }
-                };
-                reader.readAsDataURL(file);
-            });
-
-            placeholder.style.display = 'none';
-            waterOverlay.style.display = 'block';
-            vignetteLayer.style.display = 'block';
-
-            if (musicSelector.value) {
-                bgMusic.src = musicSelector.value;
-                bgMusic.currentTime = 0;
-                bgMusic.play().catch(err => console.log(err));
-            }
-
-            recordBtn.style.display = 'block';
+        } catch (error) {
+            alert('एरर आ गया: ' + error.message);
+        } finally {
+            loading.style.display = 'none';
         }
+    }
+</script>
 
-        // स्लाइडशो मोशन इंजन (हर 3 सेकंड में फोटो बदलना)
-        function runSlideshowEngine() {
-            const imgs = document.querySelectorAll('#imageWrapper img');
-            if (imgs.length <= 1) return;
-
-            if (slideInterval) clearInterval(slideInterval);
-
-            currentImageIndex = 0;
-            slideInterval = setInterval(() => {
-                imgs[currentImageIndex].style.display = 'none';
-                currentImageIndex = (currentImageIndex + 1) % imgs.length;
-                imgs[currentImageIndex].style.display = 'block';
-            }, 3000);
-        }
-
-        // असली वीडियो रिकॉर्डिंग और गैलरी एक्सपोर्ट सिस्टम
-        async function recordAndExportVideo() {
-            const container = document.getElementById('videoContainer');
-            const recordBtn = document.getElementById('recordBtn');
-            const downloadVideoBtn = document.getElementById('downloadVideoBtn');
-
-            recordBtn.innerText = "⏳ वीडियो रिकॉर्ड हो रहा है (12 सेकंड रुकें)...";
-            recordBtn.disabled = true;
-            recordedChunks = [];
-
-            try {
-                const stream = await navigator.mediaDevices.getDisplayMedia({
-                    video: { mediaSource: "screen" },
-                    audio: true
-                });
-
-                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
-
-                mediaRecorder.ondataavailable = function(event) {
-                    if (event.data.size > 0) {
-                        recordedChunks.push(event.data);
-                    }
-                };
-
-                mediaRecorder.onstop = function() {
-                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                    const videoUrl = URL.createObjectURL(blob);
-                    
-                    downloadVideoBtn.href = videoUrl;
-                    downloadVideoBtn.style.display = 'block';
-                    recordBtn.innerText = "✅ वीडियो तैयार है! नीचे डाउनलोड बटन दबाएं";
-                    alert('भाई, तेरी वीडियो गाने और स्लाइडशो के साथ तैयार है! नीचे दिए गए हरे बटन से डाउनलोड कर ले।');
-                };
-
-                mediaRecorder.start();
-                setTimeout(() => {
-                    mediaRecorder.stop();
-                    stream.getTracks().forEach(track => track.stop());
-                }, 12000);
-
-            } catch (err) {
-                console.error(err);
-                alert('रिकॉर्ड करने की अनुमति नहीं मिली।');
-                recordBtn.innerText = "🔴 पूरी वीडियो रिकॉर्ड करके गैलरी में सेव करें";
-                recordBtn.disabled = false;
-            }
-        }
-    </script>
 </body>
 </html>
