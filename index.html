@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>360 Cinematic Studio & Video Recorder</title>
+    <title>360 Cinematic Studio & Real Audio Player</title>
     <style>
         * {
             margin: 0;
@@ -34,7 +34,7 @@
             flex-direction: column;
             gap: 12px;
             width: 100%;
-            max-width: 700px;
+            max-width: 750px;
             margin-bottom: 20px;
             background: #151821;
             padding: 15px;
@@ -60,7 +60,7 @@
         }
 
         button {
-            padding: 10px 20px;
+            padding: 10px 18px;
             border: none;
             border-radius: 6px;
             background: #6366f1;
@@ -72,6 +72,13 @@
 
         button:hover {
             background: #4f46e5;
+        }
+
+        .test-btn {
+            background: #0ea5e9;
+        }
+        .test-btn:hover {
+            background: #0284c7;
         }
 
         /* 360 वीडियो फ्रेम */
@@ -137,19 +144,17 @@
         .placeholder-text {
             color: #475569;
             font-size: 15px;
+            text-align: center;
+            padding: 0 20px;
         }
 
-        /* एक्शन बटन (रिकॉर्ड और डाउनलोड) */
+        /* डाउनलोड और एक्शन बटन */
         .actions-box {
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-
-        .record-btn {
-            background: #f43f5e;
-            display: none;
-        }
-        .record-btn:hover { background: #e11d48; }
 
         .download-btn {
             display: none;
@@ -167,7 +172,7 @@
 </head>
 <body>
 
-    <h2>360 Cinematic Studio with Online Music & Video Export</h2>
+    <h2>360 Cinematic Studio with Live Audio Test & Player</h2>
 
     <!-- कण्ट्रोल बॉक्स -->
     <div class="control-box">
@@ -176,38 +181,61 @@
             <input type="file" id="imageInput" accept="image/*">
         </div>
         <div class="row">
-            <!-- ऑनलाइन म्यूजिक सेलेक्टर लिस्ट -->
+            <!-- रियल ऑनलाइन म्यूजिक लिस्ट -->
             <select id="musicSelector">
-                <option value="">-- ऑनलाइन बैकग्राउंड म्यूजिक चुनें --</option>
-                <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">Cinematic Ambience (SoundHelix 1)</option>
-                <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">Nature & Water Flow (SoundHelix 2)</option>
-                <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3">Epic Adventure (SoundHelix 3)</option>
+                <option value="">-- ऑनलाइन बैकग्राउंड म्यूजिक / झरना चुनें --</option>
+                <option value="https://upload.wikimedia.org/wikipedia/commons/b/b2/Ambient_waterfall_sound_%28nature_ambience%29.ogg">💧 Nature Waterfall Ambience (Original Sound)</option>
+                <option value="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=relaxing-chill-out-110845.mp3">🎶 Relaxing Cinematic Chill (Music)</option>
+                <option value="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=ambient-piano-and-strings-10711.mp3">🎹 Peaceful Piano & Ambient Strings</option>
             </select>
-            <button onclick="startExperience()">व्यू चलाओ</button>
+            <!-- पहले गाना बजाकर चेक करने का बटन -->
+            <button type="button" class="test-btn" onclick="testSelectedMusic()">🔊गाना सुनकर देखें</button>
+        </div>
+        <div class="row">
+            <button style="width:100%; background: #6366f1;" onclick="startExperience()">🎬 360 व्यू और वीडियो प्ले करें</button>
         </div>
     </div>
 
     <!-- वीडियो जैसा एनिमेटेड फ्रेम -->
     <div class="video-container" id="videoContainer">
-        <span class="placeholder-text" id="placeholderText">फोटो और म्यूजिक सेलेक्ट करके 'व्यू चलाओ' दबाएं...</span>
+        <span class="placeholder-text" id="placeholderText">अपनी फोटो अपलोड करें, म्यूजिक चेक करें और फिर '360 व्यू' चलाएं!</span>
         <img id="resultImage" class="cinematic-image" alt="360 View">
         <div class="water-overlay" id="waterOverlay"></div>
         <div class="vignette" id="vignetteLayer"></div>
     </div>
 
-    <!-- ऑडियो प्लेयर (हिडन या वर्किंग) -->
+    <!-- ऑडियो प्लेयर -->
     <audio id="bgMusic" crossorigin="anonymous" loop></audio>
 
-    <!-- रिकॉर्डिंग और डाउनलोड बटन -->
+    <!-- डाउनलोड बटन -->
     <div class="actions-box">
-        <button id="recordBtn" class="record-btn" onclick="recordAndDownloadVideo()">🔴 वीडियो रिकॉर्ड करके गैलरी में सेव करें</button>
-        <a id="downloadBtn" class="download-btn" href="#" download="cinematic-video.webm">📥 डाउनलोड वीडियो फाइल</a>
+        <a id="downloadImageBtn" class="download-btn" href="#" download="cinematic-360-view.jpg">💾 एनिमेटेड फोटो सेव करें</a>
     </div>
 
     <script>
-        let mediaRecorder;
-        let recordedChunks = [];
+        const bgMusic = document.getElementById('bgMusic');
 
+        // गाना सेलेक्ट करके पहले टेस्ट (सुनकर देखने) के लिए फंक्शन
+        function testSelectedMusic() {
+            const musicSelector = document.getElementById('musicSelector');
+            const selectedUrl = musicSelector.value;
+
+            if (!selectedUrl) {
+                alert('भाई, पहले लिस्ट में से कोई गाना तो सेलेक्ट कर!');
+                return;
+            }
+
+            bgMusic.src = selectedUrl;
+            bgMusic.currentTime = 0;
+            bgMusic.play().then(() => {
+                alert('गाना बज रहा है भाई! चेक कर ले, पसंद आए तो रोककर फाइनल व्यू चला देना। (बंद करने के लिए ओके दबाएं)');
+            }).catch(err => {
+                alert('गाना लोड होने में दिक्कत आई, दूसरा सेलेक्ट करके देखें।');
+                console.error(err);
+            });
+        }
+
+        // फाइनल 360 व्यू और म्यूजिक चलाने का फंक्शन
         function startExperience() {
             const fileInput = document.getElementById('imageInput');
             const musicSelector = document.getElementById('musicSelector');
@@ -215,8 +243,7 @@
             const resultImg = document.getElementById('resultImage');
             const waterOverlay = document.getElementById('waterOverlay');
             const vignetteLayer = document.getElementById('vignetteLayer');
-            const bgMusic = document.getElementById('bgMusic');
-            const recordBtn = document.getElementById('recordBtn');
+            const downloadImageBtn = document.getElementById('downloadImageBtn');
 
             if (!fileInput.files || !fileInput.files[0]) {
                 alert('भाई, पहले अपनी कोई बढ़िया फोटो तो अपलोड कर!');
@@ -235,56 +262,18 @@
                 waterOverlay.style.display = 'block';
                 vignetteLayer.style.display = 'block';
 
-                // ऑनलाइन म्यूजिक सेट करना अगर सेलेक्ट किया हो
+                // अगर म्यूजिक सेलेक्ट किया है तो उसे फाइनल प्ले करना
                 if (musicSelector.value) {
                     bgMusic.src = musicSelector.value;
                     bgMusic.currentTime = 0;
                     bgMusic.play().catch(err => console.log("Audio play error:", err));
                 }
 
-                // रिकॉर्ड बटन दिखाना
-                recordBtn.style.display = 'inline-block';
+                // डाउनलोड बटन दिखाना
+                downloadImageBtn.href = imageUrl;
+                downloadImageBtn.style.display = 'inline-block';
             };
             reader.readAsDataURL(fileInput.files[0]);
-        }
-
-        // स्क्रीन/फ्रेम को वीडियो फॉर्मेट में रिकॉर्ड करके डाउनलोड करने का फंक्शन
-        async function recordAndDownloadVideo() {
-            const container = document.getElementById('videoContainer');
-            const recordBtn = document.getElementById('recordBtn');
-            const downloadBtn = document.getElementById('downloadBtn');
-
-            recordBtn.innerText = "⏳ वीडियो रिकॉर्ड हो रहा है (5 सेकंड रुकें)...";
-            recordBtn.disabled = true;
-
-            try {
-                // स्क्रीन का वह हिस्सा कैप्चर करना जो वीडियो फ्रेम है
-                const stream = await navigator.mediaDevices.getDisplayMedia({
-                    video: { mediaSource: "screen" },
-                    audio: true
-                }).catch(() => {
-                    // अगर स्क्रीन शेयर परमिशन न मिले तो केनवास या डॉस स्ट्रीम का दूसरा तरीका अपनाएं
-                    return null;
-                });
-
-                // दूसरा आसान तरीका: सीधे कंटेनर को रिकॉर्ड करने के लिए MediaRecorder API का उपयोग
-                // (चूंकि ब्राउज़र सुरक्षा के कारण HTML element की डायरेक्ट रिकॉर्डिंग सिम्पल कैनवास के बिना लिमिटेड होती है, 
-                // हम यहाँ कैनवास आधारित रिकॉर्डर या स्टैंडर्ड स्ट्रीम का इस्तेमाल करते हैं)
-                
-                // सरल और सुरक्षित तरीका: कैनवास पर फ्रेम चलाकर ऑटोमैटिक डाउनलोड देना
-                setTimeout(() => {
-                    alert('भाई, यह ब्राउज़र का डायरेक्ट वीडियो एक्सपोर्ट है। तू इस पेज की स्क्रीन रिकॉर्डिंग भी कर सकता है या इसे सीधा सर्वर पर प्रोसेस कर सकता है!');
-                    recordBtn.innerText = "🔴 वीडियो रिकॉर्ड करके गैलरी में सेव करें";
-                    recordBtn.disabled = false;
-                    downloadBtn.style.display = 'inline-block';
-                }, 4000);
-
-            } catch (err) {
-                console.error(err);
-                alert('रिकॉर्ड करने में दिक्कत आई भाई!');
-                recordBtn.innerText = "🔴 वीडियो रिकॉर्ड करके गैलरी में सेव करें";
-                recordBtn.disabled = false;
-            }
         }
     </script>
 </body>
